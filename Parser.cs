@@ -2,17 +2,17 @@
   Buttercup compiler - This class performs the syntactic analysis,
   (a.k.a. parsing).
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
-  
+
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
   (at your option) any later version.
-  
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -22,7 +22,7 @@ using System.Collections.Generic;
 
 namespace Buttercup {
 
-    class Parser {      
+    class Parser {
 
         static readonly ISet<TokenCategory> firstOfDeclaration =
             new HashSet<TokenCategory>() {
@@ -54,7 +54,7 @@ namespace Buttercup {
                 TokenCategory.PARENTHESIS_OPEN,
                 TokenCategory.NEG
             };
-                
+
         IEnumerator<Token> tokenStream;
 
         public Parser(IEnumerator<Token> tokenStream) {
@@ -72,11 +72,11 @@ namespace Buttercup {
                 tokenStream.MoveNext();
                 return current;
             } else {
-                throw new SyntaxError(category, tokenStream.Current);                
+                throw new SyntaxError(category, tokenStream.Current);
             }
         }
 
-        public void Program() {            
+        public void Program() {
 
             while (firstOfDeclaration.Contains(CurrentToken)) {
                 Declaration();
@@ -111,7 +111,7 @@ namespace Buttercup {
                 break;
 
             default:
-                throw new SyntaxError(firstOfStatement, 
+                throw new SyntaxError(firstOfStatement,
                                       tokenStream.Current);
             }
         }
@@ -128,7 +128,7 @@ namespace Buttercup {
                 break;
 
             default:
-                throw new SyntaxError(firstOfDeclaration, 
+                throw new SyntaxError(firstOfDeclaration,
                                       tokenStream.Current);
             }
         }
@@ -163,6 +163,7 @@ namespace Buttercup {
         }
 
         public void SimpleExpression() {
+            
 
             switch (CurrentToken) {
 
@@ -194,34 +195,21 @@ namespace Buttercup {
                 break;
 
             default:
-                throw new SyntaxError(firstOfSimpleExpression, 
+                throw new SyntaxError(firstOfSimpleExpression,
                                       tokenStream.Current);
             }
         }
 
         public void Operator() {
+            var firstOperator = TokenCategory.ASSIGN;
+            var lastOperator = TokenCategory.CURLY_BRACES_CLOSE;
 
-            switch (CurrentToken) {
-
-            case TokenCategory.AND:
-                Expect(TokenCategory.AND);
-                break;
-
-            case TokenCategory.LESS:
-                Expect(TokenCategory.LESS);
-                break;
-
-            case  TokenCategory.PLUS:
-                Expect(TokenCategory.PLUS);
-                break;
-
-            case TokenCategory.MUL:
-                Expect(TokenCategory.MUL);
-                break;
-
-            default:
-                throw new SyntaxError(firstOfOperator, 
-                                      tokenStream.Current);
+            if (CurrentToken >= firstOperator && CurrentToken <= lastOperator){
+                Expect(CurrentToken);
+            }
+            else{
+                throw new SyntaxError(firstOfOperator,tokenStream.Current);
+            }
             }
         }
     }
