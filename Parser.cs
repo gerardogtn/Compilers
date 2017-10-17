@@ -78,6 +78,7 @@ namespace Buttercup {
 
         public void Program() {
 
+
             while (firstOfDeclaration.Contains(CurrentToken)) {
                 Declaration();
             }
@@ -88,6 +89,51 @@ namespace Buttercup {
 
             Expect(TokenCategory.EOF);
         }
+
+        public void Definition(){
+            switch(CurrentToken){
+                case TokenCategory.VAR:
+                    Var_Def();
+                    break;
+                case TokenCategory.IDENTIFIER:
+                    Fun_Def();
+                    break;
+                default:
+                    throw new SyntaxError(firstOfStatement,tokenStream.Current);
+            }
+        }
+
+        public void Var_Def(){
+            Expect(TokenCategory.VAR);
+            Id_List();
+            Expect(TokenCategory.SEMICOLON);
+        }
+        public void Fun_Def(){
+            Expect(TokenCategory.IDENTIFIER);
+            Expect(TokenCategory.PARENTHESIS_OPEN);
+
+            // Not so sure
+            if(TokenCategory.IDENTIFIER){
+                Id_List();
+            }
+
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+
+            while(CurrentToken == TokenCategory.VAR){
+                Var_Def();
+            }
+            while(firstOfStatement.Contains(CurrentToken)){
+                Stmt();
+            }
+
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+        }
+
+        // public void Id_List(){
+        //     Expect(TokenCategory.IDENTIFIER);
+        //     while()
+        // }
 
         public void Declaration() {
             Type();
@@ -163,7 +209,7 @@ namespace Buttercup {
         }
 
         public void SimpleExpression() {
-            
+
 
             switch (CurrentToken) {
 
