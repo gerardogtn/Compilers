@@ -77,20 +77,21 @@ namespace Buttercup {
         }
 
         public void Program() {
-
-
-            while (firstOfDeclaration.Contains(CurrentToken)) {
-                Declaration();
-            }
-
-            while (firstOfStatement.Contains(CurrentToken)) {
-                Statement();
-            }
-
-            Expect(TokenCategory.EOF);
+            DefList();
+            // while (firstOfDeclaration.Contains(CurrentToken)) {
+            //     Declaration();
+            // }
+            //
+            // while (firstOfStatement.Contains(CurrentToken)) {
+            //     Statement();
+            // }
+            //
+            // Expect(TokenCategory.EOF);
         }
+        public void DefList(){}
 
-        public void Definition(){
+
+        public void Def(){
             switch(CurrentToken){
                 case TokenCategory.VAR:
                     Var_Def();
@@ -103,37 +104,278 @@ namespace Buttercup {
             }
         }
 
-        public void Var_Def(){
+        public void VarDef(){
             Expect(TokenCategory.VAR);
-            Id_List();
+            VarList();
             Expect(TokenCategory.SEMICOLON);
         }
-        public void Fun_Def(){
+
+        public void VarList(){
+            IdList();
+        }
+
+        public void IdList(){
+            Expect(TokenCategory.IDENTIFIER);
+            IdListCont();
+        }
+
+        public void IdListCont(){
+            while (Current == TokenCategory.PARENTHESIS_OPEN){
+                Expect(TokenCategory.PARENTHESIS_OPEN);
+                Expect(TokenCategory.COMMA);
+                Expect(TokenCategory.IDENTIFIER);
+                Expect(TokenCategory.PARENTHESIS_CLOSE);
+            }
+        }
+
+        public void FunDef(){
             Expect(TokenCategory.IDENTIFIER);
             Expect(TokenCategory.PARENTHESIS_OPEN);
-
-            // Not so sure
-            if(TokenCategory.IDENTIFIER){
-                Id_List();
-            }
-
+            ParamList();
             Expect(TokenCategory.PARENTHESIS_CLOSE);
             Expect(TokenCategory.CURLY_BRACES_OPEN);
-
-            while(CurrentToken == TokenCategory.VAR){
-                Var_Def();
-            }
-            while(firstOfStatement.Contains(CurrentToken)){
-                Stmt();
-            }
-
+            VarDefList();
+            StmtList();
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
         }
 
-        // public void Id_List(){
-        //     Expect(TokenCategory.IDENTIFIER);
-        //     while()
-        // }
+        public void ParamList(){
+            if(CurrentToken == TokenCategory.IDENTIFIER){
+                IdList();
+            }
+        }
+
+        public void VarDefList(){
+            while(CurrentToken == TokenCategory.VAR){
+                VarDef();
+            }
+        }
+        public void StmtList(){
+            while(firstOfStatement.Contains(CurrentToken)){
+                Stmt();
+            }
+        }
+        public void Stmt(){
+            switch (CurrentToken) {
+                case TokenCategory.IDENTIFIER:
+                    // TODO
+                    break;
+                case TokenCategory.IF:
+                    StmtIf();
+                    break;
+                case TokenCategory.SWITCH:
+                    StmtSwitch();
+                    break;
+                case TokenCategory.WHILE:
+                    StmtWhile();
+                    break;
+                case TokenCategory.DO:
+                    StmtDoWhile();
+                    break;
+                case TokenCategory.FOR:
+                    StmtFor();
+                    break;
+                case TokenCategory.BREAK:
+                    StmtBreak();
+                    break;
+                case TokenCategory.CONTINUE:
+                    StmtContinue();
+                    break;
+                case TokenCategory.RETURN:
+                    StmtReturn();
+                    break;
+                case TokenCategory.SEMICOLON:
+                    StmtEmpty();
+                    break;
+            }
+        }
+
+        public void StmtIf(){
+            Expect(TokenCategory.IF);
+            Expect(TokenCategory.PARENTHESIS_OPEN);
+            Expr();
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            StmtList();
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+            ElseIfList();
+            Else();
+        }
+        public void ElseIfList(){
+            while(CurrentToken == TokenCategory.ELSE){
+                Expect(TokenCategory.ELSE);
+                Expect(TokenCategory.IF);
+                Expect(TokenCategory.PARENTHESIS_OPEN);
+                Expr();
+                Expect(TokenCategory.PARENTHESIS_CLOSE);
+                Expect(TokenCategory.CURLY_BRACES_OPEN);
+                StmtList();
+                Expect(TokenCategory.CURLY_BRACES_CLOSE);
+            }
+        }
+        public void Else(){
+            if(CurrentToken == TokenCategory.ELSE){
+                Expect(TokenCategory.ELSE);
+                Expect(TokenCategory.CURLY_BRACES_OPEN);
+                StmtList();
+                Expect(TokenCategory.CURLY_BRACES_CLOSE);
+            }
+        }
+        public void StmtSwitch(){
+            Expect(TokenCategory.SWITCH);
+            Expect(TokenCategory.PARENTHESIS_OPEN);
+            Expr();
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            CaseList();
+            Default();
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+        }
+        public void CaseList(){
+            while(CurrentToken == TokenCategory.CASE){
+                Case();
+            }
+        }
+        public void Case(){
+            Expect(TokenCategory.CASE);
+            LitList();
+            Expect(TokenCategory.COLON);
+            StmtList();
+        }
+        public void LitList(){
+            LitSimple();
+            LitListCont();
+        }
+        public void LitListCont(){
+            Expect(TokenCategory.PARENTHESIS_OPEN);
+            Expect(TokenCategory.COMMA);
+            LitSimple();
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
+        }
+        public void LitSimple(){
+            switch (CurrentToken) {
+                case TokenCategory.TRUE:
+                    Expect(TokenCategory.TRUE);
+                    break;
+                case TokenCategory.FALSE:
+                    Expect(TokenCategory.FALSE);
+                    break;
+                case TokenCategory.INT_LITERAL:
+                    Expect(TokenCategory.INT_LITERAL);
+                    break;
+                case TokenCategory.CHAR_LITERAL:
+                    Expect(TokenCategory.CHAR_LITERAL);
+                    break;
+            }
+        }
+        public void Default(){
+            if(CurrentToken == TokenCategory.DEFAULT){
+                Expect(TokenCategory.DEFAULT);
+                Expect(TokenCategory.COLON);
+                StmtList();
+            }
+        }
+        public void StmtWhile(){
+            Expect(TokenCategory.WHILE);
+            Expect(TokenCategory.PARENTHESIS_OPEN);
+            Expr();
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            StmtList();
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+
+        }
+        public void StmtDoWhile(){
+            Expect(TokenCategory.DO);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            StmtList();
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+            Expect(TokenCategory.WHILE);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            Expr();
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+            Expect(TokenCategory.SEMICOLON);
+        }
+        public void StmtFor(){
+            Expect(TokenCategory.FOR);
+            Expect(TokenCategory.PARENTHESIS_OPEN);
+            Expect(TokenCategory.IDENTIFIER);
+            Expect(TokenCategory.IN);
+            Expr();
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
+            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            StmtList();
+            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+        }
+        public void StmtBreak(){
+            Expect(TokenCategory.BREAK);
+            Expect(TokenCategory.SEMICOLON);
+        }
+        public void StmtContinue(){
+            Expect(TokenCategory.CONTINUE);
+            Expect(TokenCategory.SEMICOLON);
+        }
+        public void StmtReturn(){
+            Expect(TokenCategory.RETURN);
+            Expr();
+            Expect(TokenCategory.SEMICOLON);
+        }
+        public void StmtEmpty(){
+            Expect(TokenCategory.SEMICOLON);
+        }
+
+        public void Expr(){
+            ExprCond();
+        }
+        public void ExprCond(){
+            ExprOr();
+            if(CurrentToken == Category.QUESTION_MARK){
+                Expect(TokenCategory.QUESTION_MARK);
+                Expr();
+                Expect(TokenCategory.COLON);
+                Expr();
+            }
+        }
+        public void ExprOr(){
+            ExprAnd();
+            while(CurrentToken == TokenCategory.LOGICAL_OR){
+                Expect(TokenCategory.LOGICAL_OR);
+                ExprAnd();
+            }
+        }
+
+        public void ExprAnd(){
+            ExprComp();
+            while(CurrentToken == TokenCategory.LOGICAL_AND){
+                Expect(TokenCategory.LOGICAL_AND);
+                ExprComp();
+            }
+        }
+
+        public void ExprComp(){
+            ExprRel();
+            while(CurrentToken == TokenCategory.EQUAL || CurrentToken == TokenCategory.NOT_EQUAL){
+                ExprComp();
+                ExprRel();
+            }
+        }
+
+        public void ExprComp(){
+            if (CurrentToken == TokenCategory.EQUAL) {
+                Expect(TokenCategory.EQUAL);
+            } else if (CurrentToken == TokenCategory.NOT_EQUAL) {
+                Expect(TokenCategory.NOT_EQUAL);
+            }
+        }
+
+        public void ExprRel(){
+            ExprBitOr();
+            while(CurrentToken == TokenCategory.GREATER_THAN || CurrentToken == TokenCategory.LESS_THAN || CurrentToken == TokenCategory.GREATER_OR_EQUAL_THAN || CurrentToken == TokenCategory.LESS_OR_EQUAL_THAN){
+                ExprRel();
+                ExprBitOr();
+            }
+        }
+
 
         public void Declaration() {
             Type();
