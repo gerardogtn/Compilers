@@ -139,11 +139,9 @@ namespace int64 {
         }
 
         public void IdListCont(){
-            while (CurrentToken == TokenCategory.PARENTHESIS_OPEN){
-                Expect(TokenCategory.PARENTHESIS_OPEN);
+            while (CurrentToken == TokenCategory.COMMA){
                 Expect(TokenCategory.COMMA);
                 Expect(TokenCategory.IDENTIFIER);
-                Expect(TokenCategory.PARENTHESIS_CLOSE);
             }
         }
 
