@@ -177,7 +177,7 @@ namespace Buttercup {
         public void Stmt(){
             switch (CurrentToken) {
                 case TokenCategory.IDENTIFIER:
-                    // TODO
+                    StmtId();
                     break;
                 case TokenCategory.IF:
                     StmtIf();
