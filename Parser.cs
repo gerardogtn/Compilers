@@ -20,7 +20,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Buttercup {
+namespace int64 {
 
     class Parser {
 
@@ -76,7 +76,7 @@ namespace Buttercup {
                 TokenCategory.TRUE,
                 TokenCategory.FALSE,
                 TokenCategory.PARENTHESIS_OPEN,
-                TokenCategory.NEG
+                TokenCategory.MINUS
             };
 
         IEnumerator<Token> tokenStream;
@@ -139,7 +139,7 @@ namespace Buttercup {
         }
 
         public void IdListCont(){
-            while (Current == TokenCategory.PARENTHESIS_OPEN){
+            while (CurrentToken == TokenCategory.PARENTHESIS_OPEN){
                 Expect(TokenCategory.PARENTHESIS_OPEN);
                 Expect(TokenCategory.COMMA);
                 Expect(TokenCategory.IDENTIFIER);
@@ -148,6 +148,7 @@ namespace Buttercup {
         }
 
         public void FunDef(){
+            Console.WriteLine("Fundef: " + tokenStream.Current.Lexeme);
             Expect(TokenCategory.IDENTIFIER);
             Expect(TokenCategory.PARENTHESIS_OPEN);
             ParamList();
@@ -159,7 +160,7 @@ namespace Buttercup {
         }
 
         public void ParamList(){
-            if(CurrentToken == TokenCategory.IDENTIFIER){
+            if (CurrentToken == TokenCategory.IDENTIFIER) {
                 IdList();
             }
         }
@@ -348,7 +349,7 @@ namespace Buttercup {
         }
         public void ExprCond(){
             ExprOr();
-            if(CurrentToken == Category.QUESTION_MARK){
+            if(CurrentToken == TokenCategory.QUESTION_MARK){
                 Expect(TokenCategory.QUESTION_MARK);
                 Expr();
                 Expect(TokenCategory.COLON);
@@ -374,12 +375,12 @@ namespace Buttercup {
         public void ExprComp(){
             ExprRel();
             while(CurrentToken == TokenCategory.EQUAL || CurrentToken == TokenCategory.NOT_EQUAL){
-                ExprComp();
+                OpComp();
                 ExprRel();
             }
         }
 
-        public void ExprComp(){
+        public void OpComp(){
             if (CurrentToken == TokenCategory.EQUAL) {
                 Expect(TokenCategory.EQUAL);
             } else if (CurrentToken == TokenCategory.NOT_EQUAL) {
@@ -397,15 +398,19 @@ namespace Buttercup {
         }
 
         public void OpRel(){
-            switch(CurrentToken){
+            switch(CurrentToken) {
                 case TokenCategory.GREATER_THAN:
                     Expect(TokenCategory.GREATER_THAN);
+                    break;
                 case TokenCategory.LESS_THAN:
                     Expect(TokenCategory.LESS_THAN);
+                    break;
                 case TokenCategory.GREATER_OR_EQUAL_THAN:
                     Expect(TokenCategory.GREATER_OR_EQUAL_THAN);
+                    break;
                 case TokenCategory.LESS_OR_EQUAL_THAN:
                     Expect(TokenCategory.LESS_OR_EQUAL_THAN);
+                    break;
             }
         }
 
@@ -456,7 +461,7 @@ namespace Buttercup {
         }
 
         public void ExprAdd(){
-            ExprMul;
+            ExprMul();
             while(firstOfAdd.Contains(CurrentToken)){
                 OpAdd();
                 ExprMul();
@@ -494,7 +499,7 @@ namespace Buttercup {
             }
         }
         public void ExprPow(){
-            ExprUnary;
+            ExprUnary();
             while(CurrentToken == TokenCategory.POWER){
                 Expect(TokenCategory.POWER);
                 ExprUnary();
@@ -523,9 +528,6 @@ namespace Buttercup {
                     break;
             }
         }
-        public void ExprPrimary(){
-            Expect(TokenCategory.IDENTIFIER);
-        }
 
         public void ExprPrimary(){
            if (CurrentToken == TokenCategory.IDENTIFIER) {
@@ -539,10 +541,10 @@ namespace Buttercup {
            }
         }
 
-        public void isLit() {
+        public bool IsLit() {
             return CurrentToken == TokenCategory.TRUE || CurrentToken == TokenCategory.FALSE || 
-                CurrentToken == TokenCategory.INT_LITERAL || CurrentToken == CHAR_LITERAL || 
-                CurrentToken == STRING_LITERAL || CurrentToken == CURLY_BRACES_OPEN;
+                CurrentToken == TokenCategory.INT_LITERAL || CurrentToken == TokenCategory.CHAR_LITERAL || 
+                CurrentToken == TokenCategory.STRING_LITERAL || CurrentToken == TokenCategory.CURLY_BRACES_OPEN;
         }
 
         public void StmtId() {
@@ -592,59 +594,6 @@ namespace Buttercup {
                     Expect(TokenCategory.FALSE);
                     break;
             }
-        }
-
-
-
-        // public void SimpleExpression() {
-        //
-        //
-        //     switch (CurrentToken) {
-        //
-        //     case TokenCategory.IDENTIFIER:
-        //         Expect(TokenCategory.IDENTIFIER);
-        //         break;
-        //
-        //     case TokenCategory.INT_LITERAL:
-        //         Expect(TokenCategory.INT_LITERAL);
-        //         break;
-        //
-        //     case TokenCategory.TRUE:
-        //         Expect(TokenCategory.TRUE);
-        //         break;
-        //
-        //     case TokenCategory.FALSE:
-        //         Expect(TokenCategory.FALSE);
-        //         break;
-        //
-        //     case TokenCategory.PARENTHESIS_OPEN:
-        //         Expect(TokenCategory.PARENTHESIS_OPEN);
-        //         Expression();
-        //         Expect(TokenCategory.PARENTHESIS_CLOSE);
-        //         break;
-        //
-        //     case TokenCategory.NEG:
-        //         Expect(TokenCategory.NEG);
-        //         SimpleExpression();
-        //         break;
-        //
-        //     default:
-        //         throw new SyntaxError(firstOfSimpleExpression,
-        //                               tokenStream.Current);
-        //     }
-        // }
-        //
-        // public void Operator() {
-        //     var firstOperator = TokenCategory.ASSIGN;
-        //     var lastOperator = TokenCategory.CURLY_BRACES_CLOSE;
-        //
-        //     if (CurrentToken >= firstOperator && CurrentToken <= lastOperator){
-        //         Expect(CurrentToken);
-        //     }
-        //     else{
-        //         throw new SyntaxError(firstOfOperator,tokenStream.Current);
-        //     }
-        //     }
         }
     }
 }

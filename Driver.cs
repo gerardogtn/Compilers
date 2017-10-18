@@ -68,16 +68,9 @@ namespace int64 {
             try {            
                 var inputPath = args[0];                
                 var input = File.ReadAllText(inputPath);
-                
-                Console.WriteLine(String.Format(
-                    "===== Tokens from: \"{0}\" =====", inputPath)
-                );
-                var count = 1;
-                foreach (var tok in new Scanner(input).Start()) {
-                    Console.WriteLine(String.Format("[{0}] {1}", 
-                                                    count++, tok)
-                    );
-                }
+                var parser = new Parser(new Scanner(input).Start().GetEnumerator());
+                parser.Program();
+                Console.WriteLine("Syntax OK.");
                 
             } catch (FileNotFoundException e) {
                 Console.Error.WriteLine(e.Message);
