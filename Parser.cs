@@ -148,7 +148,6 @@ namespace int64 {
         }
 
         public void FunDef(){
-            Console.WriteLine("Fundef: " + tokenStream.Current.Lexeme);
             Expect(TokenCategory.IDENTIFIER);
             Expect(TokenCategory.PARENTHESIS_OPEN);
             ParamList();
@@ -170,11 +169,13 @@ namespace int64 {
                 VarDef();
             }
         }
+
         public void StmtList(){
             while(firstOfStatement.Contains(CurrentToken)){
                 Stmt();
             }
         }
+
         public void Stmt(){
             switch (CurrentToken) {
                 case TokenCategory.IDENTIFIER:
@@ -221,6 +222,7 @@ namespace int64 {
             ElseIfList();
             Else();
         }
+
         public void ElseIfList(){
             while(CurrentToken == TokenCategory.ELSE){
                 Expect(TokenCategory.ELSE);
@@ -233,6 +235,7 @@ namespace int64 {
                 Expect(TokenCategory.CURLY_BRACES_CLOSE);
             }
         }
+
         public void Else(){
             if(CurrentToken == TokenCategory.ELSE){
                 Expect(TokenCategory.ELSE);
@@ -241,6 +244,7 @@ namespace int64 {
                 Expect(TokenCategory.CURLY_BRACES_CLOSE);
             }
         }
+
         public void StmtSwitch(){
             Expect(TokenCategory.SWITCH);
             Expect(TokenCategory.PARENTHESIS_OPEN);
@@ -251,27 +255,32 @@ namespace int64 {
             Default();
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
         }
+
         public void CaseList(){
             while(CurrentToken == TokenCategory.CASE){
                 Case();
             }
         }
+
         public void Case(){
             Expect(TokenCategory.CASE);
             LitList();
             Expect(TokenCategory.COLON);
             StmtList();
         }
+
         public void LitList(){
             LitSimple();
             LitListCont();
         }
+
         public void LitListCont(){
             Expect(TokenCategory.PARENTHESIS_OPEN);
             Expect(TokenCategory.COMMA);
             LitSimple();
             Expect(TokenCategory.PARENTHESIS_CLOSE);
         }
+
         public void LitSimple(){
             switch (CurrentToken) {
                 case TokenCategory.TRUE:
@@ -288,6 +297,7 @@ namespace int64 {
                     break;
             }
         }
+
         public void Default(){
             if(CurrentToken == TokenCategory.DEFAULT){
                 Expect(TokenCategory.DEFAULT);
@@ -295,6 +305,7 @@ namespace int64 {
                 StmtList();
             }
         }
+
         public void StmtWhile(){
             Expect(TokenCategory.WHILE);
             Expect(TokenCategory.PARENTHESIS_OPEN);
@@ -305,6 +316,7 @@ namespace int64 {
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
 
         }
+
         public void StmtDoWhile(){
             Expect(TokenCategory.DO);
             Expect(TokenCategory.CURLY_BRACES_OPEN);
@@ -316,6 +328,7 @@ namespace int64 {
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
             Expect(TokenCategory.SEMICOLON);
         }
+
         public void StmtFor(){
             Expect(TokenCategory.FOR);
             Expect(TokenCategory.PARENTHESIS_OPEN);
@@ -327,19 +340,23 @@ namespace int64 {
             StmtList();
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
         }
+
         public void StmtBreak(){
             Expect(TokenCategory.BREAK);
             Expect(TokenCategory.SEMICOLON);
         }
+
         public void StmtContinue(){
             Expect(TokenCategory.CONTINUE);
             Expect(TokenCategory.SEMICOLON);
         }
+
         public void StmtReturn(){
             Expect(TokenCategory.RETURN);
             Expr();
             Expect(TokenCategory.SEMICOLON);
         }
+
         public void StmtEmpty(){
             Expect(TokenCategory.SEMICOLON);
         }
@@ -347,6 +364,7 @@ namespace int64 {
         public void Expr(){
             ExprCond();
         }
+
         public void ExprCond(){
             ExprOr();
             if(CurrentToken == TokenCategory.QUESTION_MARK){
@@ -561,7 +579,43 @@ namespace int64 {
         }
 
         public void ExprList() {
-            if (CurrentToken == TokenCategory.COMMA) {
+            if (IsExpr()) {
+                Expr();
+                ExprListCont();
+            }
+        }
+
+        public bool IsExpr() {
+            return IsLit() || IsOpUnary() || CurrentToken == TokenCategory.IDENTIFIER || CurrentToken == TokenCategory.PARENTHESIS_OPEN
+                || IsOpMul() || IsOpAdd() || IsOpBitShift() || IsOpRel() || IsOpComp();
+        }
+
+        public bool IsOpUnary() {
+            return CurrentToken == TokenCategory.PLUS || CurrentToken == TokenCategory.ASSIGN || CurrentToken == TokenCategory.LOGICAL_NOT || CurrentToken == TokenCategory.BITWISE_NOT;
+        }
+
+        public bool IsOpMul() {
+            return CurrentToken == TokenCategory.TIMES || CurrentToken == TokenCategory.DIVISION || CurrentToken == TokenCategory.REMAINDER;
+        }
+
+        public bool IsOpAdd() {
+            return CurrentToken == TokenCategory.PLUS || CurrentToken == TokenCategory.MINUS;
+        }
+
+        public bool IsOpBitShift() {
+            return CurrentToken == TokenCategory.BITWISE_SHIFT_RIGHT || CurrentToken == TokenCategory.BITWISE_SHIFT_LEFT || CurrentToken == TokenCategory.BITWISE_UNSIGNED_SHIFT_RIGHT;
+        }
+
+        public bool IsOpRel() {
+            return CurrentToken == TokenCategory.LESS_THAN || CurrentToken == TokenCategory.LESS_OR_EQUAL_THAN || CurrentToken == TokenCategory.GREATER_THAN || CurrentToken == TokenCategory.GREATER_OR_EQUAL_THAN;
+        }
+
+        public bool IsOpComp() {
+            return CurrentToken == TokenCategory.EQUAL || CurrentToken == TokenCategory.NOT_EQUAL;
+        }
+
+        public void ExprListCont() {
+            while (CurrentToken == TokenCategory.COMMA) {
                 Expect(TokenCategory.COMMA);
                 Expr();
             }
