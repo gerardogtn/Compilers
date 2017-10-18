@@ -103,18 +103,20 @@ namespace Buttercup {
         public void Program() {
             DefList();
         }
-        public void DefList(){
-            // TODO
-        }
 
+        public void DefList(){
+            while (CurrentToken == TokenCategory.VAR || CurrentToken == TokenCategory.IDENTIFIER) {
+                Def();
+            }
+        }
 
         public void Def(){
             switch(CurrentToken){
                 case TokenCategory.VAR:
-                    Var_Def();
+                    VarDef();
                     break;
                 case TokenCategory.IDENTIFIER:
-                    Fun_Def();
+                    FunDef();
                     break;
                 default:
                     throw new SyntaxError(firstOfStatement,tokenStream.Current);
@@ -407,13 +409,23 @@ namespace Buttercup {
             }
         }
 
-        public void ExprBitOr(){
+        public void ExprBitOr() {
             ExprBitAnd();
-            // TODO
-            // Falta gramatica para OpBitOr
+            while (CurrentToken == TokenCategory.BITWISE_OR || CurrentToken == TokenCategory.BITWISE_XOR) {
+                OpBitOr();
+                ExprBitAnd();
+            }
         }
 
-        public void ExprBitAnd(){
+        public void OpBitOr() {
+            if (CurrentToken == TokenCategory.BITWISE_OR) {
+                Expect(TokenCategory.BITWISE_OR);
+            } else if (CurrentToken == TokenCategory.BITWISE_XOR) {
+                Expect(TokenCategory.BITWISE_XOR);
+            }
+        }
+
+        public void ExprBitAnd() {
             ExprBitShift();
             while(CurrentToken == TokenCategory.BITWISE_AND){
                 Expect(TokenCategory.BITWISE_AND);
@@ -516,8 +528,41 @@ namespace Buttercup {
         }
 
         public void ExprPrimary(){
-            // TODO
-            // Falta el diferenciador de IDENTIFIER y FunCall
+           if (CurrentToken == TokenCategory.IDENTIFIER) {
+                StmtId();
+           } else if (IsLit()) {
+                Lit();
+           } else if (CurrentToken == TokenCategory.PARENTHESIS_OPEN) {
+                Expect(TokenCategory.PARENTHESIS_OPEN);
+                Expr();
+                Expect(TokenCategory.PARENTHESIS_CLOSE);
+           }
+        }
+
+        public void isLit() {
+            return CurrentToken == TokenCategory.TRUE || CurrentToken == TokenCategory.FALSE || 
+                CurrentToken == TokenCategory.INT_LITERAL || CurrentToken == CHAR_LITERAL || 
+                CurrentToken == STRING_LITERAL || CurrentToken == CURLY_BRACES_OPEN;
+        }
+
+        public void StmtId() {
+            Expect(TokenCategory.IDENTIFIER);
+            if (CurrentToken == TokenCategory.ASSIGN) {
+                Expect(TokenCategory.ASSIGN);
+                Expr();
+                Expect(TokenCategory.SEMICOLON);
+            } else if (CurrentToken == TokenCategory.PARENTHESIS_OPEN) {
+                Expect(TokenCategory.PARENTHESIS_OPEN);
+                ExprList();
+                Expect(TokenCategory.PARENTHESIS_CLOSE);
+            }
+        }
+
+        public void ExprList() {
+            if (CurrentToken == TokenCategory.COMMA) {
+                Expect(TokenCategory.COMMA);
+                Expr();
+            }
         }
 
         public void Lit(){
