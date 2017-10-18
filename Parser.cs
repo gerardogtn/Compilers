@@ -218,28 +218,25 @@ namespace int64 {
             StmtList();
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
             ElseIfList();
-            Else();
         }
 
         public void ElseIfList(){
-            while(CurrentToken == TokenCategory.ELSE){
+            while (CurrentToken == TokenCategory.ELSE) {
                 Expect(TokenCategory.ELSE);
-                Expect(TokenCategory.IF);
-                Expect(TokenCategory.PARENTHESIS_OPEN);
-                Expr();
-                Expect(TokenCategory.PARENTHESIS_CLOSE);
-                Expect(TokenCategory.CURLY_BRACES_OPEN);
-                StmtList();
-                Expect(TokenCategory.CURLY_BRACES_CLOSE);
-            }
-        }
-
-        public void Else(){
-            if(CurrentToken == TokenCategory.ELSE){
-                Expect(TokenCategory.ELSE);
-                Expect(TokenCategory.CURLY_BRACES_OPEN);
-                StmtList();
-                Expect(TokenCategory.CURLY_BRACES_CLOSE);
+                if (CurrentToken == TokenCategory.IF) {
+                    Expect(TokenCategory.IF);
+                    Expect(TokenCategory.PARENTHESIS_OPEN);
+                    Expr();     
+                    Expect(TokenCategory.PARENTHESIS_CLOSE);
+                    Expect(TokenCategory.CURLY_BRACES_OPEN);
+                    StmtList();
+                    Expect(TokenCategory.CURLY_BRACES_CLOSE);
+                } else {
+                    Expect(TokenCategory.CURLY_BRACES_OPEN);
+                    StmtList();
+                    Expect(TokenCategory.CURLY_BRACES_CLOSE);
+                    break;
+                }
             }
         }
 
