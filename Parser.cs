@@ -1,4 +1,7 @@
 /*
+Javier Curiel A01020542
+Gerardo Teruel A01018057
+
   Buttercup compiler - This class performs the syntactic analysis,
   (a.k.a. parsing).
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
@@ -226,7 +229,7 @@ namespace int64 {
                 if (CurrentToken == TokenCategory.IF) {
                     Expect(TokenCategory.IF);
                     Expect(TokenCategory.PARENTHESIS_OPEN);
-                    Expr();     
+                    Expr();
                     Expect(TokenCategory.PARENTHESIS_CLOSE);
                     Expect(TokenCategory.CURLY_BRACES_OPEN);
                     StmtList();
@@ -270,10 +273,11 @@ namespace int64 {
         }
 
         public void LitListCont(){
-            Expect(TokenCategory.PARENTHESIS_OPEN);
-            Expect(TokenCategory.COMMA);
-            LitSimple();
-            Expect(TokenCategory.PARENTHESIS_CLOSE);
+            while(CurrentToken == TokenCategory.COMMA){
+                Expect(TokenCategory.COMMA);
+                LitSimple();
+            }
+
         }
 
         public void LitSimple(){
@@ -318,9 +322,9 @@ namespace int64 {
             StmtList();
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
             Expect(TokenCategory.WHILE);
-            Expect(TokenCategory.CURLY_BRACES_OPEN);
+            Expect(TokenCategory.PARENTHESIS_OPEN);
             Expr();
-            Expect(TokenCategory.CURLY_BRACES_CLOSE);
+            Expect(TokenCategory.PARENTHESIS_CLOSE);
             Expect(TokenCategory.SEMICOLON);
         }
 
@@ -405,7 +409,7 @@ namespace int64 {
             ExprBitOr();
             while(CurrentToken == TokenCategory.GREATER_THAN || CurrentToken == TokenCategory.LESS_THAN
             || CurrentToken == TokenCategory.GREATER_OR_EQUAL_THAN || CurrentToken == TokenCategory.LESS_OR_EQUAL_THAN){
-                ExprRel();
+                OpRel();
                 ExprBitOr();
             }
         }
@@ -493,7 +497,7 @@ namespace int64 {
         }
         public void ExprMul(){
             ExprPow();
-            while(firstOfAdd.Contains(CurrentToken)){
+            while(IsOpMul()){
                 OpMul();
                 ExprPow();
             }
@@ -552,11 +556,14 @@ namespace int64 {
                 Expr();
                 Expect(TokenCategory.PARENTHESIS_CLOSE);
            }
+           else{
+               throw new SyntaxError(TokenCategory.IDENTIFIER,  tokenStream.Current);
+           }
         }
 
         public bool IsLit() {
-            return CurrentToken == TokenCategory.TRUE || CurrentToken == TokenCategory.FALSE || 
-                CurrentToken == TokenCategory.INT_LITERAL || CurrentToken == TokenCategory.CHAR_LITERAL || 
+            return CurrentToken == TokenCategory.TRUE || CurrentToken == TokenCategory.FALSE ||
+                CurrentToken == TokenCategory.INT_LITERAL || CurrentToken == TokenCategory.CHAR_LITERAL ||
                 CurrentToken == TokenCategory.STRING_LITERAL || CurrentToken == TokenCategory.CURLY_BRACES_OPEN;
         }
 

@@ -1,4 +1,7 @@
 /*
+Javier Curiel A01020542
+Gerardo Teruel A01018057
+
   Buttercup compiler - This class performs the lexical analysis,
   (a.k.a. scanning).
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
@@ -35,7 +38,7 @@ namespace int64 {
               | (?<Identifier>                [a-zA-Z][a-zA-Z0-9_]*                            )
               | (?<IntLiteral>                0[bB][01]+|0[oO][0-7]+|0[xX][0-9a-fA-f]+|\d+     )
               | (?<CharLiteral>               '[^']'|'[\\][nrt\\'""]'|'[\\]u[a-fA-F]{6}'       )
-              | (?<StringLiteral>             ""(\\""|[^""\n])*""                              )
+              | (?<StringLiteral>             ""(\'|\\""|[^""\n])*""                              )
               | (?<Equal>                     [=]{2}                                           )
               | (?<NotEqual>                  [!][=]                                           )
               | (?<GreaterOrEqualThan>        [>][=]                                           )

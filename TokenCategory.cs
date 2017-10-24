@@ -1,4 +1,7 @@
 /*
+Javier Curiel A01020542
+Gerardo Teruel A01018057
+
   Buttercup compiler - Token categories for the scanner.
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
 
