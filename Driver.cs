@@ -31,7 +31,9 @@ namespace int64 {
 
         //-----------------------------------------------------------
         static readonly string[] ReleaseIncludes = {
-            "Syntactic analysis"
+            "Lexical analysis",
+            "Syntactic analysis",
+            "AST construction"
         };
 
         //-----------------------------------------------------------
@@ -75,9 +77,11 @@ namespace int64 {
                 parser.Program();
                 Console.WriteLine("Syntax OK.");
 
-            } catch (FileNotFoundException e) {
-                Console.Error.WriteLine(e.Message);
-                Environment.Exit(1);
+            } catch (Exception e) {
+                if (e is FileNotFoundException || e is SyntaxError) {
+                    Console.Error.WriteLine(e.Message);
+                    Environment.Exit(1);
+                }
             }
         }
 
