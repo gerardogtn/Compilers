@@ -1,0 +1,21 @@
+var fails;
+
+assert(value1, value2, message) {
+    if (value1 != value2) {
+        fails = fails + 1;
+        prints("Assertion failure: ");
+        prints(message);
+        println();
+    }
+}
+
+check_power() {
+    var a; 
+    a = 2 ** 3 ** 2;
+    assert(a, 512, "A must be equal to 512");     
+}
+
+check_or() {
+  var a;
+  a = false || 0 || 10 - 10 || true;
+}
