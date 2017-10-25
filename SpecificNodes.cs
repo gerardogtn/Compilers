@@ -21,15 +21,75 @@ namespace int64 {
 
     class Program: Node {}
     class DefList: Node {}
+    class IdList : Node {}
     class IdListCont : Node {}
     class ParamList : Node {}
 
+    class FunDef : Node {}
     class VarDefList : Node {}
     class StmtList : Node {}
     class StmtIf : Node {}
     class ElseIfList : Node {}
     class ElseIf : Node {}
     class Else : Node {}
+
+    class StmtSwitch : Node {}
+    class CaseList : Node {}
+    class Case : Node {}
+    class LitList : Node {}
+    class LitListCont : Node {}
+    class Default : Node {}
+
+    class StmtWhile : Node {}
+    class StmtDoWhile : Node {}
+    class StmtFor : Node {}
+    class StmtBreak : Node {}
+    class StmtContinue : Node {}
+    class StmtReturn : Node {}
+    class StmtEmpty : Node {}
+
+    class TernaryOperator : Node {}
+    class LogicalOr : Node {}
+    class LogicalAnd : Node {}
+    class Equal : Node {}
+    class NotEqual : Node {}
+
+    class GreaterThan : Node {}
+    class GreaterEqualThan : Node {}
+    class LessThan : Node {}
+    class LessEqualThan : Node {}
+
+    class BitwiseOr : Node {}
+    class BitwiseXor : Node {}
+    class BitwiseAnd : Node {}
+    class BitwiseShiftLeft : Node {}
+    class BitwiseShiftRight : Node {}
+    class BitwiseUnsignedShiftRight : Node {}
+
+    class Plus : Node {}
+    class Minus : Node {}
+
+    class Times : Node {}
+    class Division : Node {}
+    class Remainder : Node {}
+
+    class Power : Node {}
+
+    class BitwiseNot : Node {}
+    class LogicalNot : Node {}
+
+    class FunCall: Node {}
+    class ExprList : Node {}
+    class ArrayList : Node {}
+
+    class True: Node {}
+    class False: Node {}
+
+    class Identifier : Node {}
+
+    class IntLiteral : Node {}
+    class CharLiteral : Node {}
+    class StringLiteral : Node {}
 
     class DeclarationList: Node {}
 
@@ -40,24 +100,4 @@ namespace int64 {
     class Assignment: Node {}
 
     class Print: Node {}
-
-    class If: Node {}
-
-    class Identifier: Node {}
-
-    class IntLiteral: Node {}
-
-    class True: Node {}
-
-    class False: Node {}
-
-    class Neg: Node {}
-
-    class And: Node {}
-
-    class Less: Node {}
-
-    class Plus: Node {}
-
-    class Mul: Node {}
 }

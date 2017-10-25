@@ -27,7 +27,7 @@ namespace int64 {
 
     public class Driver {
 
-        const string VERSION = "0.1";
+        const string VERSION = "0.3";
 
         //-----------------------------------------------------------
         static readonly string[] ReleaseIncludes = {
@@ -74,10 +74,10 @@ namespace int64 {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(new Scanner(input).Start().GetEnumerator());
-                parser.Program();
-                Console.WriteLine("Syntax OK.");
+                var program = parser.Program();
+                Console.Write(program.ToStringTree());
 
-            } catch (Exception e) {
+            } catch (FileNotFoundException e) {
                 if (e is FileNotFoundException || e is SyntaxError) {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
