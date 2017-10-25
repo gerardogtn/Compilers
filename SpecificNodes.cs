@@ -1,5 +1,5 @@
 /*
-  Buttercup compiler - Specific node subclasses for the AST (Abstract 
+  Buttercup compiler - Specific node subclasses for the AST (Abstract
   Syntax Tree).
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
 
@@ -17,9 +17,19 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace int64 {    
+namespace int64 {
 
     class Program: Node {}
+    class DefList: Node {}
+    class IdListCont : Node {}
+    class ParamList : Node {}
+
+    class VarDefList : Node {}
+    class StmtList : Node {}
+    class StmtIf : Node {}
+    class ElseIfList : Node {}
+    class ElseIf : Node {}
+    class Else : Node {}
 
     class DeclarationList: Node {}
 
