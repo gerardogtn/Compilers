@@ -1,6 +1,7 @@
 /*
-Javier Curiel A01020542
-Gerardo Teruel A01018057
+  Javier Curiel A01020542
+  Gerardo Teruel A01018057
+  Angel Tellez A01022029
 
   Buttercup compiler - Program driver.
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
@@ -39,7 +40,7 @@ namespace int64 {
         //-----------------------------------------------------------
         void PrintAppHeader() {
             Console.WriteLine("Buttercup compiler, version " + VERSION);
-            Console.WriteLine("Copyright \u00A9 2017 by G. Teruel & J. Curiel."
+            Console.WriteLine("Copyright \u00A9 2017 by G. Teruel,  J. Curiel. & A. Tellez"
             );
             Console.WriteLine("This program is free software; you may "
                 + "redistribute it under the terms of");
@@ -77,7 +78,7 @@ namespace int64 {
                 var program = parser.Program();
                 Console.Write(program.ToStringTree());
 
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 if (e is FileNotFoundException || e is SyntaxError) {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);

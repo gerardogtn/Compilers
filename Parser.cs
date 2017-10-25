@@ -1,6 +1,7 @@
 /*
-Javier Curiel A01020542
-Gerardo Teruel A01018057
+  Javier Curiel A01020542
+  Gerardo Teruel A01018057
+  Angel Tellez A01022029
 
   Buttercup compiler - This class performs the syntactic analysis,
   (a.k.a. parsing).
@@ -231,7 +232,9 @@ namespace int64 {
             Expect(TokenCategory.CURLY_BRACES_OPEN);
             result.Add(StmtList());
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
-            result.Add(ElseIfList());
+            if (CurrentToken == TokenCategory.ELSE) {
+                result.Add(ElseIfList());
+            }
             return result;
         }
 
