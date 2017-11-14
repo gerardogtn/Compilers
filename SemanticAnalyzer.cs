@@ -506,7 +506,7 @@ namespace int64 {
         //-----------------------------------------------------------
         public SemanticAnalyzer() {
             GlobalVariablesNamespace = new HashSet<String>();
-            FunctionNamespace = new HashSet<String>();
+            FunctionNamespace = new HashSet<FunctionDefinition>();
         }
 
         public void Run(Program node) {
