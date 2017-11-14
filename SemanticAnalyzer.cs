@@ -27,7 +27,7 @@ namespace int64 {
         class FunctionTable{
             int arity;
             bool predefined;
-            LocalTable localTable;
+            SymbolTable localTable;
 
             public FunctionTable(int arity,bool predefined,SymbolTable localTable){
                  this.arity = arity;
