@@ -22,7 +22,6 @@ namespace int64 {
     class Program: Node {}
     class DefList: Node {}
     class IdList : Node {}
-    class IdListCont : Node {}
     class ParamList : Node {}
 
     class FunDef : Node {}
@@ -37,7 +36,6 @@ namespace int64 {
     class CaseList : Node {}
     class Case : Node {}
     class LitList : Node {}
-    class LitListCont : Node {}
     class Default : Node {}
 
     class StmtWhile : Node {}
@@ -79,7 +77,6 @@ namespace int64 {
     class LogicalNot : Node {}
 
     class FunCall: Node {}
-    class ExprList : Node {}
     class ArrayList : Node {}
 
     class True: Node {}
@@ -91,13 +88,6 @@ namespace int64 {
     class CharLiteral : Node {}
     class StringLiteral : Node {}
 
-    class DeclarationList: Node {}
-
-    class Declaration: Node {}
-
-    class StatementList: Node {}
-
     class Assignment: Node {}
 
-    class Print: Node {}
 }
