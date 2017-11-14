@@ -21,15 +21,32 @@ using System.Collections.Generic;
 
 namespace int64 {
 
+
     class SemanticAnalyzer {
 
-        //-----------------------------------------------------------
-        static readonly IDictionary<TokenCategory, Type> typeMapper =
-            new Dictionary<TokenCategory, Type>() {
-                { TokenCategory.INT_LITERAL, Type.INT_LITERAL},
-                { TokenCategory.CHAR_LITERAL, Type.CHAR_LITERAL},
-                { TokenCategory.STRING_LITERAL, Type.STRING_LITERAL}
-            };
+        class FunctionTable{
+            int arity;
+            bool predefined;
+            LocalTable localTable;
+
+            public FunctionTable(int arity,bool predefined,SymbolTable localTable){
+                 this.arity = arity;
+                 this.predefined = predefined;
+                 this.localTable = localTable;
+            }
+        }
+
+        class LocalTable{
+            string kind;
+            int position;
+
+            public LocalTable(string kind, int position){
+                this.kind = kind;
+                this.position = position;
+            }
+
+        }
+
 
         //-----------------------------------------------------------
         public SymbolTable Table {
@@ -39,7 +56,8 @@ namespace int64 {
 
         //-----------------------------------------------------------
         public SemanticAnalyzer() {
-            Table = new SymbolTable();
+            GlobalVars = new SymbolTable();
+            Functions = new SymbolTable();
         }
 
         //-----------------------------------------------------------
@@ -54,14 +72,31 @@ namespace int64 {
             VisitChildren(node);
             return Type.VOID;
         }
+        public Type Visit(Def node) {
+            VisitChildren(node);
+            return Type.VOID;
+        }
+        public Type Visit(VarDef node) {
+            VisitChildren(node);
+            return Type.VOID;
+        }
         public Type Visit(VarList node) {
             VisitChildren(node);
             return Type.VOID;
         }
         public Type Visit(IdList node) {
-            VisitChildren(node);
+            foreach (var n in node) {
+                var variableName = n.AnchorToken.Lexeme;
+                if (GlobalVars.Contains(variableName)) {
+                    throw new SemanticError(
+                        "Duplicated variable: " + variableName, n.AnchorToken);
+                } else {
+                    GlobalVars[variableName] = null;
+                }
+            }
             return Type.VOID;
         }
+
         public Type Visit(ParamList node) {
             VisitChildren(node);
             return Type.VOID;
