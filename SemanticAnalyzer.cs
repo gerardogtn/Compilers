@@ -490,12 +490,9 @@ namespace int64 {
         }
 
         public override bool Equals(Object obj) {
-            if ((obj == null) || ! this.GetType().Equals(obj.GetType())) {
-                 return false;
-            } else {
-                FunctionDefinition functionDefinition = obj as FunctionDefinition;
-                return Name.Equals(functionDefinition.Name)
-            }
+            if (obj == null || GetType() != obj.GetType()) return false;
+            FunctionDefinition functionDefinition = obj as FunctionDefinition;
+            return Name.Equals(functionDefinition.Name);
         }
 
         public override int GetHashCode() {
@@ -529,7 +526,6 @@ namespace int64 {
             SecondPassVisitor secondPassVisitor = new SecondPassVisitor(); 
             secondPassVisitor.Visit(node);
         }
-
-        pivate 
+ 
     }
 }
