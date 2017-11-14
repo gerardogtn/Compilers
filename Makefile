@@ -17,9 +17,11 @@
 #
 
 buttercup.exe: Driver.cs Scanner.cs Token.cs TokenCategory.cs Parser.cs \
-	SyntaxError.cs Node.cs SpecificNodes.cs
+	SyntaxError.cs Node.cs SpecificNodes.cs SemanticError.cs SymbolTable.cs \
+	SemanticAnalyzer.cs
 	mcs -out:int64.exe Driver.cs Scanner.cs Token.cs TokenCategory.cs Parser.cs \
-	SyntaxError.cs Node.cs SpecificNodes.cs
-			
+	SyntaxError.cs Node.cs SpecificNodes.cs SemanticError.cs SymbolTable.cs \
+	SemanticAnalyzer.cs
+
 clean:
 	rm int64.exe

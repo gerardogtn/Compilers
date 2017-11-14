@@ -34,7 +34,8 @@ namespace int64 {
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
-            "AST construction"
+            "AST construction", 
+            "Semantic Analysis"
         };
 
         //-----------------------------------------------------------
