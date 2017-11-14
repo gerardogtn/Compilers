@@ -488,6 +488,19 @@ namespace int64 {
             this.Arity = Arity;
             this.Parameters = Parameters;
         }
+
+        public override bool Equals(Object obj) {
+            if ((obj == null) || ! this.GetType().Equals(obj.GetType())) {
+                 return false;
+            } else {
+                FunctionDefinition functionDefinition = obj as FunctionDefinition;
+                return Name.Equals(functionDefinition.Name)
+            }
+        }
+
+        public override int GetHashCode() {
+            return Name.GetHashCode();
+        }
     }
 
     class SemanticAnalyzer {
@@ -512,10 +525,11 @@ namespace int64 {
         public void Run(Program node) {
             FirstPassVisitor firstPassVisitor = new FirstPassVisitor();
             firstPassVisitor.Visit(node);
-
+            // Checar si main existe.
             SecondPassVisitor secondPassVisitor = new SecondPassVisitor(); 
             secondPassVisitor.Visit(node);
         }
 
+        pivate 
     }
 }
