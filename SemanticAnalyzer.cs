@@ -477,6 +477,17 @@ namespace int64 {
             get; 
             set;
         }
+
+        public ISet<String> Parameters {
+            get;
+            set;
+        }
+
+        public FunctionDefinition(String Name, int Arity, ISet<String> Parameters) {
+            this.Name = Name;
+            this.Arity = Arity;
+            this.Parameters = Parameters;
+        }
     }
 
     class SemanticAnalyzer {
@@ -487,7 +498,7 @@ namespace int64 {
             private set;
         }
 
-        public IDictionary<String, FunctionDefinition> FunctionNamespace {
+        public ISet<FunctionDefinition> FunctionNamespace {
             get;
             private set;
         }
@@ -495,7 +506,7 @@ namespace int64 {
         //-----------------------------------------------------------
         public SemanticAnalyzer() {
             GlobalVariablesNamespace = new HashSet<String>();
-            FunctionNamespace = new SortedDictionary<String, FunctionDefinition>();
+            FunctionNamespace = new HashSet<String>();
         }
 
         public void Run(Program node) {
