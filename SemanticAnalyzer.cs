@@ -467,6 +467,18 @@ namespace int64 {
         }
     }
 
+    class FunctionDefinition {
+        public String Name {
+            get; 
+            set;
+        }
+
+        public int Arity {
+            get; 
+            set;
+        }
+    }
+
     class SemanticAnalyzer {
 
         //-----------------------------------------------------------
@@ -482,8 +494,8 @@ namespace int64 {
 
         //-----------------------------------------------------------
         public SemanticAnalyzer() {
-            GlobalNamespace = new SymbolTable();
-            FunctionNamespace = new SymbolTable();
+            GlobalVariablesNamespace = new HashSet<String>();
+            FunctionNamespace = new SortedDictionary<String, FunctionDefinition>();
         }
 
         public void Run(Program node) {
