@@ -68,7 +68,11 @@ namespace int64 {
             if(FunctionNamespace.Contains(functionDefinition)){
                 throw new SemanticError("Duplicated function: " + functionName, node.AnchorToken);
             } else{
-                FunctionNamespace.Add(functionDefinition);
+                if(functionName == "main" && parameters.Count > 0){
+                    throw new SemanticError("Main function has more than 0 parameters");
+                } else{
+                    FunctionNamespace.Add(functionDefinition);
+                }
             }
         }
 

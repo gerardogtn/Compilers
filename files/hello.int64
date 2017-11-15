@@ -5,12 +5,6 @@
 
  var x,y,z;
 
-main() {
+main(x) {
     prints("Hello World\n");
 }
-
-f(x,y){
-
-}
-
-var x,y;
