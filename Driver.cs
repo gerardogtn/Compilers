@@ -34,7 +34,8 @@ namespace int64 {
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
-            "AST construction"
+            "AST construction",
+            "Semantic Analysis"
         };
 
         //-----------------------------------------------------------
@@ -76,12 +77,36 @@ namespace int64 {
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(new Scanner(input).Start().GetEnumerator());
                 var program = parser.Program();
-                Console.Write(program.ToStringTree());
+                Console.WriteLine("Syntax OK.");
+
+                var semanticAnalyzer = new SemanticAnalyzer();
+                Console.WriteLine(program.ToStringTree());
+                semanticAnalyzer.Run(program);
+
+                Console.WriteLine("Semantics OK.");
+
+                Console.WriteLine("\nGlobal variables");
+                Console.WriteLine("================");
+                foreach (var entry in semanticAnalyzer.GlobalVariablesNamespace) {
+                    Console.WriteLine(entry);
+                }
+
+                Console.WriteLine("\nFunctions table");
+                Console.WriteLine("===================================");
+                Console.WriteLine("Name\t\tArity\tLocal table");
+                Console.WriteLine("===================================");
+                foreach (var entry in semanticAnalyzer.FunctionNamespace) {
+                    Console.WriteLine(entry.Key +
+                        "\t\t" + entry.Value.Arity +
+                        "\t" + string.Join(", ", entry.Value.Parameters));
+                }
 
             } catch (Exception e) {
-                if (e is FileNotFoundException || e is SyntaxError) {
+                if (e is FileNotFoundException || e is SyntaxError || e is SemanticError) {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
+                } else {
+                  throw e;
                 }
             }
         }
