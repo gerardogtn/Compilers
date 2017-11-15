@@ -38,6 +38,12 @@ namespace int64 {
             this.FunctionNamespace = FunctionNamespace;
         }
 
+        void VisitChildren(Node node) {
+            foreach (var n in node) {
+                Visit((dynamic) n);
+            }
+        }
+
         public void Visit(Program node) {
             VisitChildren(node);
         }
@@ -56,7 +62,7 @@ namespace int64 {
         }
 
         public void Visit(VarDefList node) {
-
+            IList<Identifier> vars = Visit((dynamic) node[0]);
         }
 
         public void Visit(StmtList node) {
