@@ -7,9 +7,9 @@
 
 main() {
     prints("Hello World\n");
-
+    f(w,z);
+    prints(w);
 }
 
 f(x,y){
-
 }

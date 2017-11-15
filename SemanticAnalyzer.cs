@@ -28,12 +28,12 @@ namespace int64 {
             private set;
         }
 
-        public ISet<FunctionDefinition> FunctionNamespace {
+        public Dictionary<String, FunctionDefinition> FunctionNamespace {
             get;
             private set;
         }
 
-        public FirstPassVisitor(ISet<String> GlobalVariablesNamespace, ISet<FunctionDefinition> FunctionNamespace) {
+        public FirstPassVisitor(ISet<String> GlobalVariablesNamespace, Dictionary<String, FunctionDefinition> FunctionNamespace) {
             this.GlobalVariablesNamespace = GlobalVariablesNamespace;
             this.FunctionNamespace = FunctionNamespace;
         }
@@ -65,13 +65,13 @@ namespace int64 {
             }
 
             var functionDefinition = new FunctionDefinition(functionName, parameters.Count, parameters);
-            if(FunctionNamespace.Contains(functionDefinition)){
+            if(FunctionNamespace.ContainsKey(functionName)){
                 throw new SemanticError("Duplicated function: " + functionName, node.AnchorToken);
             } else{
                 if(functionName == "main" && parameters.Count > 0){
-                    throw new SemanticError("Main function has more than 0 parameters");
+                    throw new SemanticError("Main function has more than 0 parameters ");
                 } else{
-                    FunctionNamespace.Add(functionDefinition);
+                    FunctionNamespace.Add(functionName,functionDefinition);
                 }
             }
         }
@@ -289,9 +289,32 @@ namespace int64 {
 
         private int NestedLoopCount;
 
+        public ISet<String> localParameters {
+            get;
+            private set;
+        }
 
-        public SecondPassVisitor() {
+        public ISet<String> localVars {
+            get;
+            private set;
+        }
+
+        public ISet<String> GlobalVariablesNamespace {
+            get;
+            private set;
+        }
+
+        public Dictionary<String, FunctionDefinition> FunctionNamespace {
+            get;
+            private set;
+        }
+
+
+
+        public SecondPassVisitor(ISet<String> GlobalVariablesNamespace, Dictionary<String, FunctionDefinition> FunctionNamespace) {
             this.NestedLoopCount = 0;
+            this.GlobalVariablesNamespace = GlobalVariablesNamespace;
+            this.FunctionNamespace = FunctionNamespace;
         }
 
         void VisitChildren(Node node) {
@@ -308,8 +331,34 @@ namespace int64 {
             }
         }
 
+        // public ISet<String> getChildren(ParamList node){
+        //     // Already validate duplicates on first pass
+        //     var children = new HashSet<String>();
+        //     foreach (var n in node) {
+        //         children.Add(n.AnchorToken.Lexeme);
+        //     }
+        //     return children;
+        // }
+
+        public ISet<String> getChildren(VarDefList node){
+            var children = new HashSet<String>();
+            foreach (var n in node) {
+                var variableName = n.AnchorToken.Lexeme;
+                if(localParameters.Contains(variableName) || children.Contains(variableName)){
+                    throw new SemanticError("Duplicated variable: " + variableName, n.AnchorToken);
+                } else{
+                    children.Add(variableName);
+                }
+
+            }
+            return children;
+        }
+
         public void Visit(FunDef node) {
+            localParameters = FunctionNamespace[node.AnchorToken.Lexeme].Parameters;
+            localVars = getChildren((dynamic) node[1]);
             VisitChildren(node);
+
         }
 
         public void Visit(ParamList node) {
@@ -381,13 +430,13 @@ namespace int64 {
 
         public void Visit(StmtBreak node) {
             if (NestedLoopCount <= 0) {
-                throw new SemanticError("Break outside of For, While or DoWhile", node.AnchorToken);
+                throw new SemanticError("Break outside of For, While or DoWhile ", node.AnchorToken);
             }
         }
 
         public void Visit(StmtContinue node) {
             if (NestedLoopCount <= 0) {
-                throw new SemanticError("Continue outside of For, While or DoWhile", node.AnchorToken);
+                throw new SemanticError("Continue outside of For, While or DoWhile ", node.AnchorToken);
             }
         }
 
@@ -492,7 +541,18 @@ namespace int64 {
         }
 
         public void Visit(FunCall node) {
+            var functionName = node.AnchorToken.Lexeme;
+            var size = 0;
+            foreach (var n in node) {
+                size++;
+            }
+            if(FunctionNamespace.ContainsKey(functionName) && FunctionNamespace[functionName].Arity == size){
 
+            }
+            else{
+                throw new SemanticError("Invalid function call! " + functionName, node.AnchorToken);
+            }
+            VisitChildren(node);
         }
 
         public IList<Node> Visit(ArrayList node) {
@@ -508,14 +568,18 @@ namespace int64 {
         }
 
         public void Visit(Identifier node) {
-
+            var variableName = node.AnchorToken.Lexeme;
+            Console.Write(variableName);
+            if(!localVars.Contains(variableName) || !localParameters.Contains(variableName) || !GlobalVariablesNamespace.Contains(variableName)){
+                throw new SemanticError("Variable not defined " + variableName, node.AnchorToken);
+            }
         }
 
         public void Visit(IntLiteral node) {
             try {
                 Convert.ToInt64(node.AnchorToken.Lexeme);
             } catch (FormatException e) {
-                throw new SemanticError("Cannot convert literal to int64.", node.AnchorToken);
+                throw new SemanticError("Cannot convert literal to int64. ", node.AnchorToken);
             }
         }
 
@@ -573,7 +637,7 @@ namespace int64 {
             private set;
         }
 
-        public ISet<FunctionDefinition> FunctionNamespace {
+        public Dictionary<String, FunctionDefinition> FunctionNamespace {
             get;
             private set;
         }
@@ -581,18 +645,18 @@ namespace int64 {
         //-----------------------------------------------------------
         public SemanticAnalyzer() {
             GlobalVariablesNamespace = new HashSet<String>();
-            FunctionNamespace = new HashSet<FunctionDefinition>() {
-                new FunctionDefinition("printi",  1, new HashSet<String>() { "i" } ),
-                new FunctionDefinition("printc",  1, new HashSet<String>() { "c" } ),
-                new FunctionDefinition("prints",  1, new HashSet<String>() { "s" } ),
-                new FunctionDefinition("println", 0, new HashSet<String>()),
-                new FunctionDefinition("readi",   0, new HashSet<String>()),
-                new FunctionDefinition("reads",   0, new HashSet<String>()),
-                new FunctionDefinition("new",     1, new HashSet<String>() { "n" } ),
-                new FunctionDefinition("size",    1, new HashSet<String>() { "h" } ),
-                new FunctionDefinition("add",     2, new HashSet<String>() { "h", "x" } ),
-                new FunctionDefinition("get",     2, new HashSet<String>() { "h", "i" } ),
-                new FunctionDefinition("set",     3, new HashSet<String>() { "h", "i", "x" } )
+            FunctionNamespace = new Dictionary<String, FunctionDefinition>() {
+                {"printi", new FunctionDefinition("printi",  1, new HashSet<String>() { "i" } )},
+                {"printc", new FunctionDefinition("printc",  1, new HashSet<String>() { "c" } )},
+                {"prints", new FunctionDefinition("prints",  1, new HashSet<String>() { "s" } )},
+                {"println", new FunctionDefinition("println", 0, new HashSet<String>())},
+                {"readi", new FunctionDefinition("readi",   0, new HashSet<String>())},
+                {"reads", new FunctionDefinition("reads",   0, new HashSet<String>())},
+                {"new", new FunctionDefinition("new",     1, new HashSet<String>() { "n" } )},
+                {"size", new FunctionDefinition("size",    1, new HashSet<String>() { "h" } )},
+                {"add", new FunctionDefinition("add",     2, new HashSet<String>() { "h", "x" } )},
+                {"get", new FunctionDefinition("get",     2, new HashSet<String>() { "h", "i" } )},
+                {"set", new FunctionDefinition("set",     3, new HashSet<String>() { "h", "i", "x" })}
             };
         }
 
@@ -602,13 +666,13 @@ namespace int64 {
 
             CheckMain();
 
-            SecondPassVisitor secondPassVisitor = new SecondPassVisitor();
+            SecondPassVisitor secondPassVisitor = new SecondPassVisitor(GlobalVariablesNamespace, FunctionNamespace);
             secondPassVisitor.Visit(node);
         }
 
         private void CheckMain() {
-            if (!FunctionNamespace.Contains(new FunctionDefinition("main", 0, new HashSet<String>()))) {
-                 throw new SemanticError("No main function defined.");
+            if(!FunctionNamespace.ContainsKey("main")){
+                throw new SemanticError("No main function defined. ");
             }
         }
 
