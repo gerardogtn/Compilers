@@ -5,6 +5,11 @@
 
  var x,y,z;
 
-main(x) {
+main() {
     prints("Hello World\n");
+
+}
+
+f(x,y){
+
 }

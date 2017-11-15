@@ -286,8 +286,15 @@ namespace int64 {
     }
 
     class SecondPassVisitor : INodeVisitor {
-        public void Visit(Program node) {
 
+        void VisitChildren(Node node) {
+            foreach (var n in node) {
+                Visit((dynamic) n);
+            }
+        }
+
+        public void Visit(Program node) {
+            VisitChildren(node);
         }
 
         public void Visit(ParamList node) {
@@ -295,6 +302,7 @@ namespace int64 {
         }
 
         public void Visit(FunDef node) {
+
 
         }
 
