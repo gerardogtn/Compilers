@@ -287,6 +287,12 @@ namespace int64 {
 
     class SecondPassVisitor : INodeVisitor {
 
+        private int NestedLoopCount;
+
+        public SecondPassVisitor() {
+            NestedLoopCount = 0;
+        }
+
         void VisitChildren(Node node) {
             foreach (var n in node) {
                 Visit((dynamic) n);
@@ -294,14 +300,18 @@ namespace int64 {
         }
 
         public void Visit(Program node) {
+            foreach(var n in node) {
+                if (!(n is VarDefList)) {
+                    Visit((dynamic) n);
+                }
+            }
+        }
+
+        public void Visit(FunDef node) {
             VisitChildren(node);
         }
 
         public void Visit(ParamList node) {
-
-        }
-
-        public void Visit(FunDef node) {
 
 
         }
@@ -311,63 +321,73 @@ namespace int64 {
         }
 
         public void Visit(StmtList node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(StmtIf node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(ElseIfList node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(ElseIf node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Else node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(StmtSwitch node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(CaseList node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Case node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(LitList node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Default node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(StmtWhile node) {
-
+            NestedLoopCount++;
+            VisitChildren(node);
+            NestedLoopCount--;
         }
 
         public void Visit(StmtDoWhile node) {
-
+            NestedLoopCount++;
+            VisitChildren(node);
+            NestedLoopCount--;
         }
 
         public void Visit(StmtFor node) {
-
+            NestedLoopCount++;
+            VisitChildren(node);
+            NestedLoopCount--;
         }
 
         public void Visit(StmtBreak node) {
-
+            if (NestedLoopCount <= 0) {
+                throw new SemanticError("Break outside of For, While or DoWhile", node.AnchorToken);
+            }
         }
 
         public void Visit(StmtContinue node) {
-
+            if (NestedLoopCount <= 0) {
+                throw new SemanticError("Continue outside of For, While or DoWhile", node.AnchorToken);
+            }
         }
 
         public void Visit(StmtReturn node) {
@@ -379,95 +399,95 @@ namespace int64 {
         }
 
         public void Visit(TernaryOperator node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(LogicalOr node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(LogicalAnd node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Equal node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(NotEqual node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(GreaterThan node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(GreaterEqualThan node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(LessThan node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(LessEqualThan node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseOr node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseXor node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseAnd node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseShiftLeft node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseShiftRight node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseUnsignedShiftRight node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Plus node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Minus node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Times node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Division node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Remainder node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(Power node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(BitwiseNot node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(LogicalNot node) {
-
+            VisitChildren(node);
         }
 
         public void Visit(FunCall node) {
@@ -583,7 +603,7 @@ namespace int64 {
         }
 
         private void CheckMain() {
-            if (!FunctionNamespace.Contains(new FunctionDefinition("main", 0, null))) {
+            if (!FunctionNamespace.Contains(new FunctionDefinition("main", 0, new HashSet<String>()))) {
                  throw new SemanticError("No main function defined.");
             }
         }
