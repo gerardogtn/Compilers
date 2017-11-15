@@ -82,7 +82,7 @@ namespace int64 {
                 localVariables.Add(variableName);
             }
 
-            var functionDefinition = new FunctionDefinition(functionName, parameters.Count, parameters);
+            var functionDefinition = new FunctionDefinition(functionName, parameters.Count, parameters, localVariables);
             if(FunctionNamespace.ContainsKey(functionName)){
                 throw new SemanticError("Duplicated function: " + functionName, node.AnchorToken);
             } else{
@@ -638,10 +638,16 @@ namespace int64 {
             set;
         }
 
-        public FunctionDefinition(String Name, int Arity, ISet<String> Parameters) {
+        public ISet<String> LocalVars {
+            get;
+            set;
+        }
+
+        public FunctionDefinition(String Name, int Arity, ISet<String> Parameters, ISet<String> LocalVars) {
             this.Name = Name;
             this.Arity = Arity;
             this.Parameters = Parameters;
+            this.LocalVars = LocalVars;
         }
 
         public override bool Equals(Object obj) {
@@ -675,17 +681,17 @@ namespace int64 {
         public SemanticAnalyzer() {
             GlobalVariablesNamespace = new HashSet<String>();
             FunctionNamespace = new Dictionary<String, FunctionDefinition>() {
-                {"printi", new FunctionDefinition("printi",  1, new HashSet<String>() { "i" } )},
-                {"printc", new FunctionDefinition("printc",  1, new HashSet<String>() { "c" } )},
-                {"prints", new FunctionDefinition("prints",  1, new HashSet<String>() { "s" } )},
-                {"println", new FunctionDefinition("println", 0, new HashSet<String>())},
-                {"readi", new FunctionDefinition("readi",   0, new HashSet<String>())},
-                {"reads", new FunctionDefinition("reads",   0, new HashSet<String>())},
-                {"new", new FunctionDefinition("new",     1, new HashSet<String>() { "n" } )},
-                {"size", new FunctionDefinition("size",    1, new HashSet<String>() { "h" } )},
-                {"add", new FunctionDefinition("add",     2, new HashSet<String>() { "h", "x" } )},
-                {"get", new FunctionDefinition("get",     2, new HashSet<String>() { "h", "i" } )},
-                {"set", new FunctionDefinition("set",     3, new HashSet<String>() { "h", "i", "x" })}
+                {"printi", new FunctionDefinition("printi",  1, new HashSet<String>() { "i" } , new HashSet<String>() )},
+                {"printc", new FunctionDefinition("printc",  1, new HashSet<String>() { "c" } , new HashSet<String>() )},
+                {"prints", new FunctionDefinition("prints",  1, new HashSet<String>() { "s" } , new HashSet<String>() )},
+                {"println", new FunctionDefinition("println", 0, new HashSet<String>(), new HashSet<String>() )},
+                {"readi", new FunctionDefinition("readi",   0, new HashSet<String>(), new HashSet<String>() )},
+                {"reads", new FunctionDefinition("reads",   0, new HashSet<String>(), new HashSet<String>() )},
+                {"new", new FunctionDefinition("new",     1, new HashSet<String>() { "n" } , new HashSet<String>() )},
+                {"size", new FunctionDefinition("size",    1, new HashSet<String>() { "h" } , new HashSet<String>() )},
+                {"add", new FunctionDefinition("add",     2, new HashSet<String>() { "h", "x" } , new HashSet<String>() )},
+                {"get", new FunctionDefinition("get",     2, new HashSet<String>() { "h", "i" } , new HashSet<String>() )},
+                {"set", new FunctionDefinition("set",     3, new HashSet<String>() { "h", "i", "x" }, new HashSet<String>() )}
             };
         }
 
