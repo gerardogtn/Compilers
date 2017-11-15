@@ -88,6 +88,8 @@ namespace int64 {
                 if (e is FileNotFoundException || e is SyntaxError) {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
+                } else {
+                  throw e;
                 }
             }
         }

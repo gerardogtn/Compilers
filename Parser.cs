@@ -124,14 +124,15 @@ namespace int64 {
         }
 
         public Node VarDef() {
-            var token = Expect(TokenCategory.VAR);
-            var varList = new VarDefList();
-
-            IdList(varList);
-            varList.AnchorToken = token;
-
-            Expect(TokenCategory.SEMICOLON);
-            return varList;
+            var result = new VarDefList();
+            if (CurrentToken == TokenCategory.VAR) {
+                var token = Expect(TokenCategory.VAR);
+                IdList(result);
+                result.AnchorToken = token;
+                Expect(TokenCategory.SEMICOLON);
+            }
+    
+            return result;
         }
 
         public void IdList(Node result) {
