@@ -72,20 +72,18 @@ namespace int64 {
                 Environment.Exit(1);
             }
 
-
-
             try {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(new Scanner(input).Start().GetEnumerator());
                 var program = parser.Program();
                 var semanticAnalyzer = new SemanticAnalyzer();
-                semanticAnalyzer.Run(program);
                 
                 Console.Write(program.ToStringTree());
+                semanticAnalyzer.Run(program);
 
             } catch (Exception e) {
-                if (e is FileNotFoundException || e is SyntaxError) {
+                if (e is FileNotFoundException || e is SyntaxError || e is SemanticError) {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
                 } else {
