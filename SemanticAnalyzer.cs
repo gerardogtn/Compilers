@@ -48,7 +48,16 @@ namespace int64 {
             VisitChildren(node);
         }
 
+<<<<<<< Updated upstream
 
+||||||| merged common ancestors
+
+        public IList<Identifier> Visit(IdList node) {
+            return null;
+        }
+
+=======
+>>>>>>> Stashed changes
         public void Visit(ParamList node) {
 
         }
@@ -285,10 +294,6 @@ namespace int64 {
     class SecondPassVisitor : INodeVisitor {
         public void Visit(Program node) {
 
-        }
-
-        public IList<Identifier> Visit(IdList node) {
-            return null;
         }
 
         public void Visit(ParamList node) {
@@ -550,7 +555,19 @@ namespace int64 {
         //-----------------------------------------------------------
         public SemanticAnalyzer() {
             GlobalVariablesNamespace = new HashSet<String>();
-            FunctionNamespace = new HashSet<FunctionDefinition>();
+            FunctionNamespace = new HashSet<FunctionDefinition>() {
+                new FunctionDefinition("printi",  1, new HashSet<String>() { "i" } ),
+                new FunctionDefinition("printc",  1, new HashSet<String>() { "c" } ),
+                new FunctionDefinition("prints",  1, new HashSet<String>() { "s" } ),
+                new FunctionDefinition("println", 0, new HashSet<String>()),
+                new FunctionDefinition("readi",   0, new HashSet<String>()),
+                new FunctionDefinition("reads",   0, new HashSet<String>()),
+                new FunctionDefinition("new",     1, new HashSet<String>() { "n" } ),
+                new FunctionDefinition("size",    1, new HashSet<String>() { "h" } ),
+                new FunctionDefinition("add",     2, new HashSet<String>() { "h", "x" } ),
+                new FunctionDefinition("get",     2, new HashSet<String>() { "h", "i" } ),
+                new FunctionDefinition("set",     3, new HashSet<String>() { "h", "i", "x" } )
+            };
         }
 
         public void Run(Program node) {
