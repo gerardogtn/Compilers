@@ -105,11 +105,7 @@ namespace int64 {
         }
 
         public Node Program() {
-            return new Program() { DefList() };
-        }
-
-        public Node DefList() {
-            var result = new DefList();
+            var result = new Program();
             while (CurrentToken == TokenCategory.VAR || CurrentToken == TokenCategory.IDENTIFIER) {
                 result.Add(Def());
             }

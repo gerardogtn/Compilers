@@ -12,5 +12,7 @@ namespace int64 {
                 token.Row,
                 token.Column)) {
         }
+
+        public SemanticError(String message) : base(message) {}
     }
 }

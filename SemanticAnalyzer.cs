@@ -22,13 +22,26 @@ using System.Collections.Generic;
 namespace int64 {
 
     class FirstPassVisitor : INodeVisitor {
+
+        public ISet<String> GlobalVariablesNamespace {
+            get;
+            private set;
+        }
+
+        public ISet<FunctionDefinition> FunctionNamespace {
+            get;
+            private set;
+        }
+
+        public FirstPassVisitor(ISet<String> GlobalVariablesNamespace, ISet<FunctionDefinition> FunctionNamespace) {
+            this.GlobalVariablesNamespace = GlobalVariablesNamespace;
+            this.FunctionNamespace = FunctionNamespace;
+        }
+
         public void Visit(Program node) {
 
         }
 
-        public IList<Node> Visit(DefList node) {
-            return null;
-        }
 
         public IList<Identifier> Visit(IdList node) {
             return null;
@@ -247,10 +260,6 @@ namespace int64 {
     class SecondPassVisitor : INodeVisitor {
         public void Visit(Program node) {
 
-        }
-
-        public IList<Node> Visit(DefList node) {
-            return null;
         }
 
         public IList<Identifier> Visit(IdList node) {
@@ -520,12 +529,20 @@ namespace int64 {
         }
 
         public void Run(Program node) {
-            FirstPassVisitor firstPassVisitor = new FirstPassVisitor();
+            FirstPassVisitor firstPassVisitor = new FirstPassVisitor(GlobalVariablesNamespace, FunctionNamespace);
             firstPassVisitor.Visit(node);
-            // Checar si main existe.
+            
+            CheckMain();
+
             SecondPassVisitor secondPassVisitor = new SecondPassVisitor(); 
             secondPassVisitor.Visit(node);
         }
- 
+
+        private void CheckMain() {
+            if (!FunctionNamespace.Contains(new FunctionDefinition("main", 0, null))) {
+                 throw new SemanticError("No main function defined.");
+            }
+        }
+
     }
 }

@@ -5,7 +5,6 @@ namespace int64 {
 
 	interface INodeVisitor {
 		void Visit(Program node);
-		IList<Node> Visit(DefList node);
 		IList<Identifier> Visit(IdList node);
 		void Visit(ParamList node);
 
