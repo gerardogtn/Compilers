@@ -48,16 +48,6 @@ namespace int64 {
             VisitChildren(node);
         }
 
-<<<<<<< Updated upstream
-
-||||||| merged common ancestors
-
-        public IList<Identifier> Visit(IdList node) {
-            return null;
-        }
-
-=======
->>>>>>> Stashed changes
         public void Visit(ParamList node) {
 
         }

@@ -80,7 +80,7 @@ namespace int64 {
                 var parser = new Parser(new Scanner(input).Start().GetEnumerator());
                 var program = parser.Program();
                 var semanticAnalyzer = new SemanticAnalyzer();
-                semanticAnalyzer.run(program);
+                semanticAnalyzer.Run(program);
                 
                 Console.Write(program.ToStringTree());
 

@@ -104,7 +104,7 @@ namespace int64 {
             }
         }
 
-        public Node Program() {
+        public Program Program() {
             var result = new Program();
             while (CurrentToken == TokenCategory.VAR || CurrentToken == TokenCategory.IDENTIFIER) {
                 result.Add(Def());
