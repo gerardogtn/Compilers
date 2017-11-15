@@ -20,7 +20,6 @@
 namespace int64 {
 
     class Program: Node {}
-    class DefList: Node {}
     class IdList : Node {}
     class ParamList : Node {}
 

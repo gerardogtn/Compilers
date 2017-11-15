@@ -125,22 +125,18 @@ namespace int64 {
 
         public Node VarDef() {
             var token = Expect(TokenCategory.VAR);
-            var varList = VarList();
+            var varList = new VarDefList();
+
+            IdList(varList);
             varList.AnchorToken = token;
 
             Expect(TokenCategory.SEMICOLON);
             return varList;
         }
 
-        public Node VarList() {
-            return IdList();
-        }
-
-        public Node IdList() {
-            var result = new IdList();
+        public void IdList(Node result) {
             result.Add(new Identifier() { AnchorToken = Expect(TokenCategory.IDENTIFIER) });
             IdListCont(result);
-            return result;
         }
 
         public void IdListCont(Node node) {
@@ -167,7 +163,7 @@ namespace int64 {
         public Node ParamList() {
             var result = new ParamList();
             if (CurrentToken == TokenCategory.IDENTIFIER) {
-                result.Add(IdList());
+                IdList(result);
             }
             return result;
         }
