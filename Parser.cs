@@ -154,7 +154,7 @@ namespace int64 {
             result.Add(ParamList());
             Expect(TokenCategory.PARENTHESIS_CLOSE);
             Expect(TokenCategory.CURLY_BRACES_OPEN);
-            result.Add(VarDefList());
+            result.Add(VarDef());
             result.Add(StmtList());
             Expect(TokenCategory.CURLY_BRACES_CLOSE);
             return result;
@@ -164,14 +164,6 @@ namespace int64 {
             var result = new ParamList();
             if (CurrentToken == TokenCategory.IDENTIFIER) {
                 IdList(result);
-            }
-            return result;
-        }
-
-        public Node VarDefList() {
-            var result = new VarDefList();
-            while(CurrentToken == TokenCategory.VAR){
-                result.Add(VarDef());
             }
             return result;
         }

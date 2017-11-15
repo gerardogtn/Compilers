@@ -32,6 +32,10 @@ namespace int64 {
             }
         }
 
+        public int Size() {
+          return children.Count;
+        }
+
         public Token AnchorToken { get; set; }
 
         public void Add(Node node) {
