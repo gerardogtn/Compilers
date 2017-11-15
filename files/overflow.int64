@@ -2,4 +2,5 @@
 main() {
 	var a; 
 	a = 0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff;
+	var b; 
 }

@@ -289,8 +289,9 @@ namespace int64 {
 
         private int NestedLoopCount;
 
+
         public SecondPassVisitor() {
-            NestedLoopCount = 0;
+            this.NestedLoopCount = 0;
         }
 
         void VisitChildren(Node node) {
@@ -505,13 +506,11 @@ namespace int64 {
 
         }
 
-
         public void Visit(Identifier node) {
 
         }
 
         public void Visit(IntLiteral node) {
-            Console.WriteLine(node.AnchorToken.Lexeme);
             try {
                 Convert.ToInt64(node.AnchorToken.Lexeme);
             } catch (FormatException e) {
