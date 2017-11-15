@@ -8,3 +8,9 @@
 main() {
     prints("Hello World\n");
 }
+
+f(x,y){
+
+}
+
+var x,y;

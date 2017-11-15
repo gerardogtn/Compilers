@@ -34,7 +34,7 @@ namespace int64 {
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
-            "AST construction", 
+            "AST construction",
             "Semantic Analysis"
         };
 
@@ -72,11 +72,16 @@ namespace int64 {
                 Environment.Exit(1);
             }
 
+
+
             try {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(new Scanner(input).Start().GetEnumerator());
                 var program = parser.Program();
+                var semanticAnalyzer = new SemanticAnalyzer();
+                semanticAnalyzer.run(program);
+                
                 Console.Write(program.ToStringTree());
 
             } catch (Exception e) {

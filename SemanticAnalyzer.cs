@@ -49,20 +49,39 @@ namespace int64 {
         }
 
 
-        public IList<Identifier> Visit(IdList node) {
-            return null;
-        }
-
         public void Visit(ParamList node) {
 
         }
 
         public void Visit(FunDef node) {
+            var functionName = node.AnchorToken.Lexeme;
+            var parameters = new HashSet<String>();
+            foreach(var n in node[0]){
+                var variableName = n.AnchorToken.Lexeme;
+                if(parameters.Contains(variableName)){
+                    throw new SemanticError("Duplicated variable: " + variableName, n.AnchorToken);
+                } else {
+                    parameters.Add(variableName);
+                }
+            }
 
+            var functionDefinition = new FunctionDefinition(functionName, parameters.Count, parameters);
+            if(FunctionNamespace.Contains(functionDefinition)){
+                throw new SemanticError("Duplicated function: " + functionName, node.AnchorToken);
+            } else{
+                FunctionNamespace.Add(functionDefinition);
+            }
         }
 
         public void Visit(VarDefList node) {
-            IList<Identifier> vars = Visit((dynamic) node[0]);
+            foreach (var n in node) {
+                var variableName = n.AnchorToken.Lexeme;
+                if (GlobalVariablesNamespace.Contains(variableName)) {
+                    throw new SemanticError("Duplicated variable: " + variableName, n.AnchorToken);
+                } else {
+                    GlobalVariablesNamespace.Add(variableName);
+                }
+            }
         }
 
         public void Visit(StmtList node) {
