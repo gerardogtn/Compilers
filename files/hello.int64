@@ -3,6 +3,8 @@
  * (C) 2017 Ariel Ortiz, ITESM CEM
  */
 
+ var x,y,z;
+
 main() {
     prints("Hello World\n");
 }
