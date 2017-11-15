@@ -37,7 +37,7 @@ namespace int64 {
               | (?<MultilineComment>          ([/][*][^*]*[*]+([^*/][^*]*[*]+)*[/])            )
               | (?<Identifier>                [a-zA-Z][a-zA-Z0-9_]*                            )
               | (?<IntLiteral>                0[bB][01]+|0[oO][0-7]+|0[xX][0-9a-fA-f]+|\d+     )
-              | (?<CharLiteral>               [']([^""\\]|\\n|\\r|\\t|\\\\|\\'|\\""|\\u[0-9a-zA-Z]{6})?[']       )
+              | (?<CharLiteral>               [']([^""\\]|\\n|\\r|\\t|\\\\|\\'|\\""|\\u[0-9a-fA-F]{6})?[']       )
               | (?<StringLiteral>             ""(\'|\\""|[^""\n])*""                           )
               | (?<Equal>                     [=]{2}                                           )
               | (?<NotEqual>                  [!][=]                                           )
