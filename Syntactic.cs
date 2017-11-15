@@ -38,8 +38,8 @@ namespace int64 {
          try {
             var inputPath = args[0];
             var input = File.ReadAllText(inputPath);
-            var parser = new SimpleParser(new Scanner(input).Start().GetEnumerator());
-            parser.program();
+            var parser = new Parser(new Scanner(input).Start().GetEnumerator());
+            parser.Program();
             Console.WriteLine("Syntax OK.");
 
          } catch (Exception e) {

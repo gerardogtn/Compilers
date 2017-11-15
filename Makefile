@@ -15,20 +15,24 @@ PHASE5 = CILGenerator.cs int64lib.cs
 make: clean int64
 
 phase1: Lexical.cs $(PHASE1)
-	mcs -out:int64_lexical $?
+	@mcs -out:int64_lexical $?
+	@echo Compiling int64_lexical... Ready.
 
-phase2: Syntactic.cs $(PHASE1) $(PHASE2)
-	mcs -out:int64_syntactic $?
+phase2: Syntactic.cs $(PHASE1) $(PHASE2) $(PHASE3)
+	@mcs -nowarn:414 -out:int64_syntactic $?
+	@echo Compiling int64_syntactic... Ready.
 
 phase3: AST.cs $(PHASE1) $(PHASE2) $(PHASE3)
-	mcs -out:int64_ast $?
+	@mcs -nowarn:414 -out:int64_ast $?
+	@echo Compiling int64_ast... Ready.
 
 phase4: Semantic.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4)
-	mcs -out:int64_semantic $?
+	@mcs -nowarn:414 -out:int64_semantic $?
+	@echo Compiling int64_semantic... Ready.
 
 int64: Driver.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4) #$(PHASE5)
 	@mcs -nowarn:414 -out:int64 $?
-	Compiling...
+	@echo Compiling int64... ready
 
 clean:
 	@rm -f int64_lexical int64_syntactic int64_ast int64_semantic int64

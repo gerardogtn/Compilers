@@ -38,7 +38,7 @@ namespace int64 {
             var inputPath = args[0];
             var input = File.ReadAllText(inputPath);
             var parser = new Parser(new Scanner(input).Start().GetEnumerator());
-            var program = parser.program();
+            var program = parser.Program();
             Console.Write(program.ToStringTree());
 
          } catch (Exception e) {
