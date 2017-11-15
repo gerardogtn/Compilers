@@ -511,7 +511,12 @@ namespace int64 {
         }
 
         public void Visit(IntLiteral node) {
-
+            Console.WriteLine(node.AnchorToken.Lexeme);
+            try {
+                Convert.ToInt64(node.AnchorToken.Lexeme);
+            } catch (FormatException e) {
+                throw new SemanticError("Cannot convert literal to int64.", node.AnchorToken);
+            }
         }
 
         public void Visit(CharLiteral node) {
@@ -523,7 +528,7 @@ namespace int64 {
         }
 
         public void Visit(Assignment node) {
-
+            VisitChildren(node);
         }
     }
 
