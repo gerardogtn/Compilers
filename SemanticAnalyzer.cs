@@ -600,7 +600,30 @@ namespace int64 {
 
         public void Visit(IntLiteral node) {
             try {
-                long test = checked (Convert.ToInt64(node.AnchorToken.Lexeme));
+               if (node.AnchorToken.Lexeme.Length > 1) {
+                  switch (node.AnchorToken.Lexeme[1]) {
+                     case 'b':
+                        Convert.ToInt64(node.AnchorToken.Lexeme.Replace("0b", ""), 2);
+                        break;
+                     case 'B':
+                        Convert.ToInt64(node.AnchorToken.Lexeme.Replace("0B", ""), 2);
+                        break;
+                     case 'o':
+                     case 'O':
+                        Convert.ToInt64(node.AnchorToken.Lexeme, 8);
+                        break;
+                     case 'x':
+                     case 'X':
+                        Convert.ToInt64(node.AnchorToken.Lexeme, 16);
+                        break;
+                     default:
+                        Convert.ToInt64(node.AnchorToken.Lexeme);
+                        break;
+                  }
+               }
+               else {
+                  Convert.ToInt64(node.AnchorToken.Lexeme);
+               }
             } catch (OverflowException) {
                 throw new SemanticError("Cannot convert literal to int64. ", node.AnchorToken);
             }
