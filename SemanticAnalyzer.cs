@@ -600,7 +600,19 @@ namespace int64 {
 
         public void Visit(IntLiteral node) {
             try {
-                long test = checked (Convert.ToInt64(node.AnchorToken.Lexeme));
+                String number = node.AnchorToken.Lexeme; 
+                int radix = 10; 
+                if (number.StartsWith("0b") || number.StartsWith("0B")) {
+                    number = number.Replace("0b", "").Replace("0B", "");
+                    radix = 2; 
+                }
+                if (number.StartsWith("0o") || number.StartsWith("0O")) {
+                    radix = 8; 
+                }
+                if (number.StartsWith("0x") || number.StartsWith("0X")) {
+                    radix = 16; 
+                }
+                long test = checked (Convert.ToInt64(number, radix));
             } catch (OverflowException) {
                 throw new SemanticError("Cannot convert literal to int64. ", node.AnchorToken);
             }
