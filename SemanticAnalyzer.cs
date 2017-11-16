@@ -600,8 +600,8 @@ namespace int64 {
 
         public void Visit(IntLiteral node) {
             try {
-                Convert.ToInt64(node.AnchorToken.Lexeme);
-            } catch (FormatException e) {
+                long test = checked (Convert.ToInt64(node.AnchorToken.Lexeme));
+            } catch (OverflowException) {
                 throw new SemanticError("Cannot convert literal to int64. ", node.AnchorToken);
             }
         }
