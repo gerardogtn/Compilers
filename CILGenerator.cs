@@ -49,9 +49,10 @@ namespace int64 {
             var functionsDefinition = new StringBuilder();
             foreach (var child in node) {
                 if (child is VarDefList) {
-                    functionsDefinition.Append(String.Format(
+                    globalVars.Append(String.Format(
                         Visit((dynamic) child)
                     ));
+                    continue;
                 }
                 functionsDefinition.Append(String.Format(
                 Visit((dynamic) child)
@@ -71,34 +72,50 @@ namespace int64 {
         }
 
         //-----------------------------------------------------------
-        public string Visit(ParamList node) {return "";}
+        public string Visit(ParamList node) {
+            var sb = new StringBuilder();
+            foreach (var parameter in node) {
+                sb.Append(String.Format(
+                    "int64 {0}, ",
+                    Visit((dynamic) parameter))
+                );
+            }
+            if (sb.Length > 0) {
+                sb.Remove(sb.Length-2, 2); // Remove extra comma
+            }
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
         public string Visit(FunDef node) {
 
             var parameters = new StringBuilder();
-            foreach (var parameter in node[0]) {
-                parameters.Append(String.Format(
-                "int64 {0}, ",
-                Visit((dynamic) parameter))
-                );
-            }
-            if (parameters.Length > 0) {
-                parameters.Remove(parameters.Length-2, 2);
-            }
-
             var localVars = new StringBuilder();
-            localVars.Append("\t\t\t.locals init (");
-            foreach (var localVar in node[1]) {
-                localVars.Append(String.Format(
-                    "\n\t\t\t\tint64 {0},",
-                    Visit((dynamic) localVar))
-                );
-            }
-            localVars.Append(")\n");
-            localVars.Replace(",)", ")");
+            var statements = new StringBuilder();
 
-            var body = ";";
+            foreach (var child in node) {
+                if (child is ParamList) {
+                    parameters.Append(String.Format(
+                        Visit((dynamic) child)
+                    ));
+                }
+                else if (child is VarDefList) {
+                    localVars.Append("\t\t\t.locals init (");
+                    foreach (var localVar in child) {
+                        localVars.Append(String.Format(
+                            "\n\t\t\t\tint64 {0},",
+                            Visit((dynamic) localVar))
+                        );
+                    }
+                    localVars.Append(")\n");
+                    localVars.Replace(",)", ")");
+                }
+                else if (child is StmtList) {
+                    statements.Append(String.Format(
+                        Visit((dynamic) child)
+                    ));
+                }
+            }
 
             var sb = new StringBuilder();
             sb.Append(String.Format(
@@ -108,12 +125,13 @@ namespace int64 {
                 "'" + node.AnchorToken.Lexeme + "'",
                 parameters.ToString(),
                 localVars.ToString(),
-                body)
+                statements.ToString())
             );
             return sb.ToString();
         }
 
         //-----------------------------------------------------------
+        /* Exclusive use for global variables */
         public string Visit(VarDefList node) {
            var sb = new StringBuilder();
            foreach (var id in node) {
