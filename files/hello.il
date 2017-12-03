@@ -10,15 +10,19 @@
 		.field private static int64 'prueba'
 
    //--------------------- FUNCTIONS ---------------------//
-		.method private static hidebysig
-			default int64 'main' () cil managed #
+		.method public static hidebysig
+			default int64 'main' () cil managed ¿
+			.locals init (
+				int64 'a',
+				int64 'x')
 ;
-		#
+		?
 
-		.method private static hidebysig
-			default int64 'otherFunction' (int64 'parameter1', int64 'parameter2', int64 'parameter3') cil managed #
+		.method public static hidebysig
+			default int64 'otherFunction' (int64 'parameter1', int64 'parameter2', int64 'parameter3') cil managed ¿
+			.locals init ()
 ;
-		#
+		?
 
 		ret
 	}

@@ -82,15 +82,27 @@ namespace int64 {
                 parameters.Remove(parameters.Length-2, 2);
             }
 
+            var localVars = new StringBuilder();
+            localVars.Append("\t\t\t.locals init (");
+            foreach (var localVar in node[1]) {
+                localVars.Append(String.Format(
+                    "\n\t\t\t\tint64 {0},",
+                    Visit((dynamic) localVar))
+                );
+            }
+            localVars.Append(")\n");
+            localVars.Replace(",)", ")");
+
             var body = ";";
 
             var sb = new StringBuilder();
             sb.Append(String.Format(
-                "\t\t.method private static hidebysig" +
-                    "\n\t\t\tdefault int64 {0} ({1}) cil managed #\n\n" +
-                    "{2}\n\t\t#\n\n",
+                "\t\t.method public static hidebysig" +
+                    "\n\t\t\tdefault int64 {0} ({1}) cil managed ¿\n" +
+                    "{2}{3}\n\t\t?\n\n",
                 "'" + node.AnchorToken.Lexeme + "'",
                 parameters.ToString(),
+                localVars.ToString(),
                 body)
             );
             return sb.ToString();
