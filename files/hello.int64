@@ -10,3 +10,8 @@ main() {
    var a,x;
    prints("Hello World\n");
 }
+
+otherFunction(parameter1, parameter2, parameter3) {
+   var variable;
+   prints("I am other function.\n");
+}

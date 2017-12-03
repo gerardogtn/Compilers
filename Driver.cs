@@ -87,27 +87,27 @@ namespace int64 {
                 Console.WriteLine("Syntax OK.");
 
                 var semanticAnalyzer = new SemanticAnalyzer();
-                Console.WriteLine(program.ToStringTree());
+                //Console.WriteLine(program.ToStringTree());
                 semanticAnalyzer.Run(program);
                 Console.WriteLine("Semantics OK.");
 
-                Console.WriteLine("\nGlobal variables");
-                Console.WriteLine("================");
-                foreach (var entry in semanticAnalyzer.GlobalVariablesNamespace) {
-                    Console.WriteLine(entry);
-                }
-
-                Console.WriteLine("\nFunctions table");
-                Console.WriteLine("======================================================================");
-                Console.WriteLine($"{"Name",-30}{"Arity",-9}{"Parameters",-15}{"Local variables",-15}");
-                Console.WriteLine("======================================================================");
-                foreach (var entry in semanticAnalyzer.FunctionNamespace) {
-                    Console.WriteLine("{0,-30}{1,-9}{2,-15}{3,-15}",
-                        entry.Key,
-                        entry.Value.Arity,
-                        string.Join(", ", entry.Value.Parameters),
-                        string.Join(", ", entry.Value.LocalVars));
-                }
+                // Console.WriteLine("\nGlobal variables");
+                // Console.WriteLine("================");
+                // foreach (var entry in semanticAnalyzer.GlobalVariablesNamespace) {
+                //     Console.WriteLine(entry);
+                // }
+                //
+                // Console.WriteLine("\nFunctions table");
+                // Console.WriteLine("======================================================================");
+                // Console.WriteLine($"{"Name",-30}{"Arity",-9}{"Parameters",-15}{"Local variables",-15}");
+                // Console.WriteLine("======================================================================");
+                // foreach (var entry in semanticAnalyzer.FunctionNamespace) {
+                //     Console.WriteLine("{0,-30}{1,-9}{2,-15}{3,-15}",
+                //         entry.Key,
+                //         entry.Value.Arity,
+                //         string.Join(", ", entry.Value.Parameters),
+                //         string.Join(", ", entry.Value.LocalVars));
+                // }
 
                 var codeGenerator =
                   new CILGenerator(semanticAnalyzer.GlobalVariablesNamespace,

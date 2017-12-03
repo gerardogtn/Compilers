@@ -4,12 +4,22 @@
 .class public 'int64Program' extends ['mscorlib']'System'.'Object' {
 
    //------------------ GLOBAL VARIABLES ------------------//
-		.field private static int64 x
-		.field private static int64 y
-		.field private static int64 z
-		.field private static int64 prueba
+		.field private static int64 'x'
+		.field private static int64 'y'
+		.field private static int64 'z'
+		.field private static int64 'prueba'
 
    //--------------------- FUNCTIONS ---------------------//
+		.method private static hidebysig
+			default int64 'main' () cil managed #
+;
+		#
+
+		.method private static hidebysig
+			default int64 'otherFunction' (int64 'parameter1', int64 'parameter2', int64 'parameter3') cil managed #
+;
+		#
+
 		ret
 	}
 }
