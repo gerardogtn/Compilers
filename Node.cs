@@ -16,7 +16,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System; 
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -48,7 +48,7 @@ namespace int64 {
         }
 
         public override string ToString() {
-            return String.Format("{0} {1}", GetType().Name, AnchorToken);                                 
+            return String.Format("{0} {1}", GetType().Name, AnchorToken);
         }
 
         public string ToStringTree() {

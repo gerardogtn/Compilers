@@ -1,0 +1,11 @@
+/* File: hello.int64
+ * Prints "Hello World!" to the stdout.
+ * (C) 2017 Ariel Ortiz, ITESM CEM
+ */
+var x;
+
+main() {
+var a;
+    prints("Hello World\n");
+
+}

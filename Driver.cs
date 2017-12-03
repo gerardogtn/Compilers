@@ -1,6 +1,7 @@
 /*
-Javier Curiel A01020542
-Gerardo Teruel A01018057
+  Javier Curiel A01020542
+  Gerardo Teruel A01018057
+  Ángel Téllez A01022029
 
   Buttercup compiler - Program driver.
   Copyright (C) 2013 Ariel Ortiz, ITESM CEM
@@ -27,19 +28,20 @@ namespace int64 {
 
     public class Driver {
 
-        const string VERSION = "0.1";
+        const string VERSION = "0.4";
 
         //-----------------------------------------------------------
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
-            "AST construction"
+            "AST construction",
+            "Semantic Analysis"
         };
 
         //-----------------------------------------------------------
         void PrintAppHeader() {
-            Console.WriteLine("Buttercup compiler, version " + VERSION);
-            Console.WriteLine("Copyright \u00A9 2017 by G. Teruel & J. Curiel."
+            Console.WriteLine("int64 compiler, version " + VERSION);
+            Console.WriteLine("Copyright \u00A9 2017 by G. Teruel,  J. Curiel. & Á. Téllez"
             );
             Console.WriteLine("This program is free software; you may "
                 + "redistribute it under the terms of");
@@ -74,13 +76,39 @@ namespace int64 {
                 var inputPath = args[0];
                 var input = File.ReadAllText(inputPath);
                 var parser = new Parser(new Scanner(input).Start().GetEnumerator());
-                parser.Program();
+                var program = parser.Program();
                 Console.WriteLine("Syntax OK.");
 
+                var semanticAnalyzer = new SemanticAnalyzer();
+                //Console.WriteLine(program.ToStringTree());
+                semanticAnalyzer.Run(program);
+
+                Console.WriteLine("Semantics OK.");
+
+                Console.WriteLine("\nGlobal variables");
+                Console.WriteLine("================");
+                foreach (var entry in semanticAnalyzer.GlobalVariablesNamespace) {
+                    Console.WriteLine(entry);
+                }
+
+                Console.WriteLine("\nFunctions table");
+                Console.WriteLine("======================================================================");
+                Console.WriteLine($"{"Name",-30}{"Arity",-9}{"Parameters",-15}{"Local variables",-15}");
+                Console.WriteLine("======================================================================");
+                foreach (var entry in semanticAnalyzer.FunctionNamespace) {
+                    Console.WriteLine("{0,-30}{1,-9}{2,-15}{3,-15}",
+                        entry.Key,
+                        entry.Value.Arity,
+                        string.Join(", ", entry.Value.Parameters),
+                        string.Join(", ", entry.Value.LocalVars));
+                }
+
             } catch (Exception e) {
-                if (e is FileNotFoundException || e is SyntaxError) {
+                if (e is FileNotFoundException || e is SyntaxError || e is SemanticError) {
                     Console.Error.WriteLine(e.Message);
                     Environment.Exit(1);
+                } else {
+                  throw e;
                 }
             }
         }
