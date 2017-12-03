@@ -2,10 +2,11 @@
  * Prints "Hello World!" to the stdout.
  * (C) 2017 Ariel Ortiz, ITESM CEM
  */
-var x;
+
+var x, y, z;
+var prueba;
 
 main() {
-var a;
-    prints("Hello World\n");
-
+   var a,x;
+   prints("Hello World\n");
 }

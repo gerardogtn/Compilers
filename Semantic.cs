@@ -28,15 +28,14 @@ namespace int64 {
 
     public class Driver {
 
-        const string VERSION = "0.5";
+        const string VERSION = "0.4";
 
         //-----------------------------------------------------------
         static readonly string[] ReleaseIncludes = {
             "Lexical analysis",
             "Syntactic analysis",
             "AST construction",
-            "Semantic Analysis",
-            "CIL code generation"
+            "Semantic Analysis"
         };
 
         //-----------------------------------------------------------
@@ -44,8 +43,8 @@ namespace int64 {
             Console.WriteLine("int64 compiler, version " + VERSION);
             Console.WriteLine("Copyright \u00A9 2017 by G. Teruel,  J. Curiel. & Á. Téllez"
             );
-            Console.Write("This program is free software; you may "
-                + "redistribute it under the terms of ");
+            Console.WriteLine("This program is free software; you may "
+                + "redistribute it under the terms of");
             Console.WriteLine("the GNU General Public License version 3 or "
                 + "later.");
             Console.WriteLine("This program has absolutely no warranty.");
@@ -67,16 +66,10 @@ namespace int64 {
             PrintReleaseIncludes();
             Console.WriteLine();
 
-            var outputPath = "";
-            if (args.Length != 2) {
-               if (args.Length != 1) {
-                   Console.Error.WriteLine(
-                       "Please specify at least the name of the input file.");
-                   Environment.Exit(1);
-               }
-                outputPath = args[0].Replace(".int64", ".il");
-            } else {
-               outputPath = args[1];
+            if (args.Length != 1) {
+                Console.Error.WriteLine(
+                    "Please specify the name of the input file.");
+                Environment.Exit(1);
             }
 
             try {
@@ -89,6 +82,7 @@ namespace int64 {
                 var semanticAnalyzer = new SemanticAnalyzer();
                 Console.WriteLine(program.ToStringTree());
                 semanticAnalyzer.Run(program);
+
                 Console.WriteLine("Semantics OK.");
 
                 Console.WriteLine("\nGlobal variables");
@@ -108,16 +102,6 @@ namespace int64 {
                         string.Join(", ", entry.Value.Parameters),
                         string.Join(", ", entry.Value.LocalVars));
                 }
-
-                var codeGenerator =
-                  new CILGenerator(semanticAnalyzer.GlobalVariablesNamespace,
-                                   semanticAnalyzer.FunctionNamespace);
-                File.WriteAllText(
-                    outputPath,
-                    codeGenerator.Visit((dynamic) program));
-                Console.WriteLine(
-                    "Generated CIL code to '" + outputPath + "'.");
-                Console.WriteLine();
 
             } catch (Exception e) {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError) {
