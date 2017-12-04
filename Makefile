@@ -32,7 +32,7 @@ phase4: Semantic.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4)
 
 int64: Driver.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4) $(PHASE5)
 	@mcs /t:library int64lib.cs
-	@mcs -nowarn:414,168 /r:int64lib.dll -out:int64 $?
+	@mcs -nowarn:414,168,219 /r:int64lib.dll -out:int64 $?
 	@echo Compiling int64... ready
 
 clean:
