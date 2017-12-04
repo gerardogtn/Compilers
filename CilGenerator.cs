@@ -10,7 +10,7 @@ namespace Int64 {
 		private int IndentLevel;
 		private static int SPACES_PER_INDENT = 2;
 		private String FileName;
-		private String CurrentFunction; 
+		private String CurrentFunction;
 		private int labelCounter = 0;
 
 		private Stack<String> ExitLabels;
@@ -43,9 +43,9 @@ namespace Int64 {
 
         private string GenerateLabel() {
             return String.Format("${0:000000}", labelCounter++);
-        }    
+        }
 
-		public CilGenerator(ISet<String> GlobalVariablesNamespace, 
+		public CilGenerator(ISet<String> GlobalVariablesNamespace,
 				Dictionary<String, FunctionDefinition> FunctionNamespace) {
 			this.Builder = new StringBuilder();
 			this.FileName = "Test";
@@ -116,13 +116,13 @@ namespace Int64 {
 			Indent();
 			Write(".method public static default int64 '", CurrentFunction, "'");
 			Visit((ParamList) node[0]);
-			Write(" {\n"); 
+			Write(" {\n");
 			IndentLevel++;
 			if (node.AnchorToken.Lexeme.Equals("main")) {
 				WriteLine(".entrypoint");
 			}
 			Visit((dynamic) node[1]);
-			Visit((dynamic) node[2]); 
+			Visit((dynamic) node[2]);
 			WriteLine("ldc.i8 0");
 			WriteLine("ret");
 
@@ -143,7 +143,7 @@ namespace Int64 {
 					}
 				}
 			}
-			
+
 			Write(")");
 		}
 
@@ -160,7 +160,7 @@ namespace Int64 {
 						Write(",\n");
 					}
 				}
-				IndentLevel--; 
+				IndentLevel--;
 				Write(")\n");
 			}
 		}
@@ -204,7 +204,7 @@ namespace Int64 {
 					var label = GenerateLabel();
 					labels.Add(label);
 					Visit((dynamic) child[0]);
-					WriteLine("brtrue ", label, "\n"); 
+					WriteLine("brtrue ", label, "\n");
 				}
 			}
 
@@ -214,7 +214,7 @@ namespace Int64 {
 			}
 			WriteLine("br ", ExitLabels.Peek(), "\n");
 
-			// Else if bodies. 
+			// Else if bodies.
 			for (int i = 0; i < labels.Count; i++) {
 				WriteLabel(labels[i]);
 				var child = node[i];
@@ -293,7 +293,7 @@ namespace Int64 {
 			WriteLabel(bodyLabel);
 			Visit((dynamic) node[1]);
 
-			// Visit condition. 
+			// Visit condition.
 			WriteLabel(conditionLabel);
 			Visit((dynamic) node[0]);
 
@@ -317,7 +317,7 @@ namespace Int64 {
 			WriteLabel(bodyLabel);
 			Visit((dynamic) node[1]);
 
-			// Visit condition. 
+			// Visit condition.
 			WriteLabel(conditionLabel);
 			Visit((dynamic) node[0]);
 
@@ -354,7 +354,7 @@ namespace Int64 {
 			var consequentLabel = GenerateLabel();
 			var exitLabel = GenerateLabel();
 
-			Visit((dynamic) node[0]); 
+			Visit((dynamic) node[0]);
 			WriteLine("brtrue ", consequentLabel);
 
 			Visit((dynamic) node[2]);
@@ -368,7 +368,7 @@ namespace Int64 {
 		public void Visit(LogicalOr node) {
 			var label = GenerateLabel();
 			var exitLabel = GenerateLabel();
-			Visit((dynamic) node[0]); 
+			Visit((dynamic) node[0]);
 			WriteLine("brtrue ", label);
 			Visit((dynamic) node[1]);
 			WriteLine("br ", exitLabel);
@@ -381,7 +381,7 @@ namespace Int64 {
 		public void Visit(LogicalAnd node) {
 			var label = GenerateLabel();
 			var exitLabel = GenerateLabel();
-			Visit((dynamic) node[0]); 
+			Visit((dynamic) node[0]);
 			WriteLine("brfalse ", label);
 			Visit((dynamic) node[1]);
 			WriteLine("br ", exitLabel);
@@ -507,8 +507,8 @@ namespace Int64 {
 
 		public void Visit(LogicalNot node) {
 			VisitChildren(node);
-			WriteLine("ldc.i4.0"); 
-			WriteLine("ceq"); 
+			WriteLine("ldc.i4.0");
+			WriteLine("ceq");
 			WriteLine("conv.i8");
 		}
 
@@ -529,10 +529,10 @@ namespace Int64 {
 			Indent();
 
 			if (!ApiFunctions.ContainsKey(functionName)) {
-				Write("call int64 class '", FileName, "'::'", functionName, "'("); 
+				Write("call int64 class '", FileName, "'::'", functionName, "'(");
 			} else {
 				Write("call int64 class ['int64lib']'Int64'.'Utils'::'");
-				Write(functionName.First().ToString().ToUpper()); 
+				Write(functionName.First().ToString().ToUpper());
 				Write(functionName.Substring(1));
 				Write("'(");
 			}
@@ -575,43 +575,124 @@ namespace Int64 {
 		}
 
 		public void Visit(IntLiteral node) {
-			String number = node.AnchorToken.Lexeme; 
-            int radix = 10; 
+			String number = node.AnchorToken.Lexeme;
+            int radix = 10;
             if (number.StartsWith("0b") || number.StartsWith("0B")) {
                 number = number.Replace("0b", "").Replace("0B", "");
-                radix = 2; 
+                radix = 2;
             }
             if (number.StartsWith("0o") || number.StartsWith("0O")) {
-                radix = 8; 
+                radix = 8;
             }
             if (number.StartsWith("0x") || number.StartsWith("0X")) {
-                radix = 16; 
+                radix = 16;
             }
             long value = checked (Convert.ToInt64(number, radix));
 			WriteLine("ldc.i8 ", value.ToString());
 		}
 
 		public void Visit(CharLiteral node) {
-			String lexeme = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
-			Console.WriteLine(lexeme);
-			long value = char.ConvertToUtf32(lexeme, lexeme.Length - 1);
-			WriteLine("ldc.i8 ", value.ToString());
+			string char_literal = node.AnchorToken.Lexeme.Replace("'","").Replace("\\","");
+
+            Write("\t" + toCodePoints(char_literal));
+		}
+
+		public string toCodePoints(string char_literal) {
+			if (char_literal == "n") {
+                return "ldc.i8 10\n";
+            }
+            else if (char_literal == "r") {
+                return "ldc.i8 13\n";
+            }
+            else if (char_literal == "t") {
+                return "ldc.i8 9\n";
+            }
+            else if (char_literal == "\\") {
+                return "ldc.i8 92\n";
+            }
+            else if (char_literal == "'") {
+                return "ldc.i8 39\n";
+            }
+            else if (char_literal == "\"") {
+                return "ldc.i8 34\n";
+            }
+            else if (char_literal.StartsWith("u")) {
+                return "ldc.i8 0x" + char_literal.Replace("u", "") + "\n";
+            }
+            else {
+				Console.WriteLine("What!!");
+                return "ldc.i8 " + char.ConvertToUtf32(char_literal, 0) + "\n";
+            }
 		}
 
 		public void Visit(StringLiteral node) {
 			String s = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
 			var size = s.Length;
-			WriteLine("ldc.i8 ", Utils.AsCodePoints(s).Count().ToString());
-			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
+
+			var count = Utils.AsCodePoints(s).Count();
+			var sb = new StringBuilder();
+
 			int i = 0;
+			bool flag = false;
+			bool flagx = false;
+			short j = 0;
 			foreach (var l in Utils.AsCodePoints(s)) {
-				WriteLine("dup");
-				WriteLine("ldc.i8 ", i.ToString());
-				WriteLine("ldc.i8 ", l.ToString());
-				WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)");
-				WriteLine("pop");
+
+				if (flagx) {
+					sb.Append(l.ToString());
+					j++;
+					if (j >= 6) {
+						flagx = false;
+					}
+					continue;
+				}
+
+				if (l == '\\') {
+					flag = true;
+					count--;
+					continue;
+				}
+
+				sb.Append("\tdup\n");
+				sb.Append("\tldc.i8 " + i.ToString() + "\n");
+				if (flag) {
+					if (l == 110) {
+		                sb.Append("\tldc.i8 10\n");
+		            }
+		            else if (l == 114) {
+		                sb.Append("\tldc.i8 13\n");
+		            }
+		            else if (l == 116) {
+		                sb.Append("\tldc.i8 9\n");
+		            }
+		            else if (l == 92) {
+		                sb.Append("\tldc.i8 92\n");
+		            }
+		            else if (l == 39) {
+		                sb.Append("\tldc.i8 39\n");
+		            }
+		            else if (l == 34) {
+		                sb.Append("\tldc.i8 34\n");
+		            }
+		            else if (l == 117) {
+						sb.Append("\tldc.i8 0x");
+		                flagx = true;
+						flag = false;
+						continue;
+		            }
+					flag = false;
+				}
+				else {
+					sb.Append("\tldc.i8 " + l.ToString() + "\n");
+				}
+				sb.Append("\tcall int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)\n");
+				sb.Append("\tpop\n");
 				i += 1;
 			}
+
+			WriteLine("ldc.i8 ", count.ToString());
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
+			WriteLine(sb.ToString());
 		}
 
 		public void Visit(Assignment node) {
