@@ -232,23 +232,51 @@ namespace int64 {
 		}
 
 		public void Visit(StmtSwitch node) {
+			Identifier Identifier = (Identifier) node[0];
+			CaseList CaseList = (CaseList) node[1];
+			Default Default = (Default) node[2];
+
+			var labels = new List<String>();
+
+			foreach (var _case in CaseList) {
+				var label = GenerateLabel();
+				labels.Add(label);
+
+				foreach (var lit in _case[0]) {
+					Visit(Identifier);
+					Visit((dynamic) lit);
+					WriteLine("brtrue ", label);
+				}
+			}
+
+			var exitLabel = GenerateLabel();
+
+			Visit((StmtList) Default[0]);
+			WriteLine("br ", exitLabel);
+
+			for (int i = 0; i < labels.Count; i++) {
+				WriteLabel(labels[i]);
+				Visit((StmtList) CaseList[i][1]);
+				WriteLine("br ", exitLabel);
+			}
+			WriteLabel(exitLabel);
 
 		}
 
 		public void Visit(CaseList node) {
-
+			throw new InvalidOperationException("CaseList Should be handled in StmtSwitch");
 		}
 
 		public void Visit(Case node) {
-
+			throw new InvalidOperationException("Case Should be handled in StmtSwitch");
 		}
 
 		public void Visit(LitList node) {
-
+			throw new InvalidOperationException("LitList Should be handled in StmtSwitch");
 		}
 
 		public void Visit(Default node) {
-
+			throw new InvalidOperationException("Default Should be handled in StmtSwitch");
 		}
 
 		public void Visit(StmtWhile node) {
@@ -337,11 +365,29 @@ namespace int64 {
 		}
 
 		public void Visit(LogicalOr node) {
-
+			var label = GenerateLabel();
+			var exitLabel = GenerateLabel();
+			Visit((dynamic) node[0]); 
+			WriteLine("brtrue ", label);
+			Visit((dynamic) node[1]);
+			WriteLine("br ", exitLabel);
+			WriteLabel(label);
+            WriteLine("ldc.i4.1");
+            WriteLine("conv.i8");
+            WriteLabel(exitLabel);
 		}
 
 		public void Visit(LogicalAnd node) {
-
+			var label = GenerateLabel();
+			var exitLabel = GenerateLabel();
+			Visit((dynamic) node[0]); 
+			WriteLine("brfalse ", label);
+			Visit((dynamic) node[1]);
+			WriteLine("br ", exitLabel);
+			WriteLabel(label);
+            WriteLine("ldc.i4.0");
+            WriteLine("conv.i8");
+            WriteLabel(exitLabel);
 		}
 
 		public void Visit(Equal node) {
@@ -377,7 +423,6 @@ namespace int64 {
 			WriteLine("cgt");
 			WriteLine("neg");
 		}
-
 
 		public void Visit(BitwiseOr node) {
 			VisitChildren(node);
