@@ -7,56 +7,33 @@
 		.field private static int64 'x'
 		.field private static int64 'y'
 		.field private static int64 'z'
-		.field private static int64 'prueba'
 
    //--------------------- FUNCTIONS ---------------------//
 		.method public static hidebysig
 			default int64 'main' () cil managed {
+		.entrypoint
 			.locals init (
-				int64 'a',
-				int64 'x')
-			call int64 class int64Program::'prints'(int64)
+				int64 'a')
+			ldstr "Hello World\n"
+			call int64 ['int64lib']'int64'.'Utils'::'prints'(int64)
+			ldc.i8 1
+			ldc.i8 2
+			call int64 class 'int64Program'::'otherFunction'(int64, int64)
 
-			ldc.i8.0
-			ret
-		}
-
-		.method public static hidebysig
-			default int64 'otherFunction' (int64 'param1', int64 'param2') cil managed {
-			.locals init (
-				int64 'local_Param')
-			ldarg param1
-			ldarg param2
-			ceq
-			conv.i8
-			brfalse '$000000'
-			call int64 class int64Program::'prints'(int64)
-		'$000000':
-			ldarg param1
-			ldarg param2
-			ceq
-			not
-			conv.i8
-			brfalse '$000001'
-			call int64 class int64Program::'prints'(int64)
-		'$000001':
-			ldarg param1
-			ldarg param2
-			clt
-			conv.i8
-			brfalse '$000002'
-			call int64 class int64Program::'prints'(int64)
-		'$000002':
-			call int64 class int64Program::'prints'(int64)
-			ldloc local_Param
-			brfalse '$000003'
-			call int64 class int64Program::'prints'(int64)
-		'$000003':
-
-			ldc.i8.0
-			ret
-		}
-
+		ldc.i8 0
 		ret
 	}
+
+		.method public static hidebysig
+			default int64 'otherFunction' (int64 'x', int64 'y') cil managed {
+		.entrypoint
+			.locals init (
+				int64 'b')
+			ldc.i8 5
+			stloc 'b'
+
+		ldc.i8 0
+		ret
+	}
+
 }

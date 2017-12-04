@@ -4,30 +4,14 @@
 */
 
 var x, y, z;
-var prueba;
 
 main() {
-    var a,x;
+    var a;
     prints("Hello World\n");
+    otherFunction(1,2);
 }
 
-otherFunction(param1, param2) {
-    var local_Param;
-    local_Param = 10;
-
-    if (param1 == param2) {
-        prints("They are equal.\n");
-    }
-    else if (param1 != param2) {
-        prints("First is bigger.\n");
-    }
-    else if (param1 < param2) {
-        prints("Second is bigger.\n");
-    }
-    else {
-        prints("Else reached.");
-    }
-    if (local_Param) {
-        prints("Id as conditional");
-    }
+otherFunction(x, y) {
+    var b;
+    b = 0B101;
 }

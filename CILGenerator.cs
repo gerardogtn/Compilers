@@ -71,7 +71,7 @@ namespace int64 {
 "  + globalVars.ToString() + @"
    //--------------------- FUNCTIONS ---------------------//
 "  + functionsDefinition.ToString().Replace("¿","{").Replace("?","}")
-      + "\t\tret\n\t}\n}\n";
+      + "}\n";
         }
 
         //-----------------------------------------------------------
@@ -122,12 +122,15 @@ namespace int64 {
             sb.Append(String.Format(
                 "\t\t.method public static hidebysig" +
                     "\n\t\t\tdefault int64 {0} ({1}) cil managed ¿\n" +
-                    "{2}{3}\n\t\t\tldc.i8.0\n\t\t\tret\n\t\t?\n\n",
+                    "\t\t.entrypoint\n{2}{3}\n\t\tldc.i8 0\n\t\tret\n\t?\n\n",
                 "'" + node.AnchorToken.Lexeme + "'",
                 parameters.ToString(),
                 localVars.ToString(),
                 statements.ToString())
             );
+            if (currentScope != "main") {
+                sb.Replace("\t\t\t.entrypoint\n", "");
+            }
             return sb.ToString();
         }
 
@@ -215,9 +218,7 @@ namespace int64 {
         }
 
         //-----------------------------------------------------------
-        public string Visit(StmtSwitch node) {
-            return "";
-        }
+        public string Visit(StmtSwitch node) {return "";}
 
         //-----------------------------------------------------------
         public string Visit(CaseList node) {return "";}
@@ -470,6 +471,19 @@ namespace int64 {
         //------------------- OTHERS OPERATORS -------------------//
         public string Visit(FunCall node) {
             var functionName = node.AnchorToken.Lexeme;
+            var apiNames = new HashSet<string> {
+                "printi",
+                "printc",
+                "prints",
+                "println",
+                "readi",
+                "reads",
+                "new",
+                "size",
+                "add",
+                "get",
+                "set"
+            };
 
             var sb = new StringBuilder();
             foreach (var child in node) {
@@ -482,11 +496,20 @@ namespace int64 {
             }
             arity.Append("?").Replace(", ?", "");
 
-            sb.Append(String.Format(
-                "\t\t\tcall int64 c{2}lass int64Program::{0}({1})\n",
-                "'" + functionName + "'",
-                arity.ToString(),""
-            ));
+            if (apiNames.Contains(functionName)) {
+                sb.Append(String.Format(
+                    "\t\t\tcall int64 ['int64lib']'int64'.'Utils'::{0}({1})\n",
+                    "'" + functionName + "'",
+                    arity.ToString()
+                ));
+            }
+            else {
+                sb.Append(String.Format(
+                    "\t\t\tcall int64 class 'int64Program'::{0}({1})\n",
+                    "'" + functionName + "'",
+                    arity.ToString()
+                ));
+            }
             return sb.ToString();
         }
 
@@ -494,13 +517,33 @@ namespace int64 {
         public string Visit(TernaryOperator node) {return "";}
 
         //-----------------------------------------------------------
-        public string Visit(ArrayList node) {return "";}
+        public string Visit(ArrayList node) {
+            short children = 0;
+            var sb = new StringBuilder();
+            foreach (var child in node[0]) {
+                children++;
+            }
+            sb.Append(String.Format(
+                "\t\t\tldc.i4.s {0}\n" +
+                "\t\t\tnewarr [mscorlib]System.Int64\n" +
+                "\t\t\tdup\n" +
+                "\t\t\tldtoken field valuetype '<PrivateImplementationDetails>'/'$ArrayType={1}' '<PrivateImplementationDetails>'::'$field-63868E24FC2864A284BEEB670813EB9BAC0A9EAE'\n" +
+                "\t\t\tcall void class [mscorlib]System.Runtime.CompilerServices.RuntimeHelpers::InitializeArray(class [mscorlib]System.Array, valuetype [mscorlib]System.RuntimeFieldHandle)\n",
+                children,
+                children * 8
+            ));
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
-        public string Visit(True node) {return "";}
+        public string Visit(True node) {
+            return "\t\t\tldc.i8 1\n";
+        }
 
         //-----------------------------------------------------------
-        public string Visit(False node) {return "";}
+        public string Visit(False node) {
+            return "\t\t\tldc.i8 0\n";
+        }
 
         //-----------------------------------------------------------
         /* Exclusive use for variables in statements*/
@@ -508,33 +551,120 @@ namespace int64 {
             var id = node.AnchorToken.Lexeme;
             if (this.Functions[this.currentScope].ContainsLocalVar(id)) {
                 return String.Format(
-                    "\t\t\tldloc {0}\n", id
+                    "\t\t\tldloc '{0}'\n", id
                 );
             }
             else if (this.Functions[this.currentScope].ContainsParameter(id)) {
                 return String.Format(
-                    "\t\t\tldarg {0}\n", id
+                    "\t\t\tldarg '{0}'\n", id
                 );
             }
             else {
                 return String.Format(
-                    "\t\t\tldsfld int64 int64Program::{0}\n", id
+                    "\t\t\tldsfld int64 int64Program::'{0}'\n", id
                 );
             }
-           // return "'" + node.AnchorToken.Lexeme + "'";
         }
 
         //-----------------------------------------------------------
-        public string Visit(IntLiteral node) {return "";}
+        public string Visit(IntLiteral node) {
+            string number = node.AnchorToken.Lexeme;
+
+            if (number.StartsWith("0b") || number.StartsWith("0B")) {
+                number = number.Replace("0b", "").Replace("0B", "");
+                return String.Format(
+                    "\t\t\tldc.i8 {0}\n",
+                    Convert.ToString(Convert.ToInt64(number, 2))
+                );
+            }
+            else if (number.StartsWith("0o") || number.StartsWith("0O")) {
+                return String.Format(
+                    "\t\t\tldc.i8 {0}\n",
+                    Convert.ToString(Convert.ToInt64(number, 8))
+                );
+            }
+            else if (number.StartsWith("0x") || number.StartsWith("0X")) {
+                return String.Format(
+                    "\t\t\tldc.i8 {0}\n",
+                    number.Replace("X", "x")
+                );
+            }
+            else {
+                return String.Format(
+                    "\t\t\tldc.i8 {0}\n",
+                    number
+                );
+            }
+        }
 
         //-----------------------------------------------------------
-        public string Visit(CharLiteral node) {return "";}
+        public string Visit(CharLiteral node) {
+            string char_literal = node.AnchorToken.Lexeme.Replace("'","");
+
+            if (char_literal == "\\n") {
+                return "\t\t\tldc.i8 10\n";
+            }
+            else if (char_literal == "\\r") {
+                return "\t\t\tldc.i8 13\n";
+            }
+            else if (char_literal == "\\t") {
+                return "\t\t\tldc.i8 9\n";
+            }
+            else if (char_literal == "\\\\") {
+                return "\t\t\tldc.i8 92\n";
+            }
+            else if (char_literal == "\\'") {
+                return "\t\t\tldc.i8 39\n";
+            }
+            else if (char_literal == "\\\"") {
+                return "\t\t\tldc.i8 34\n";
+            }
+            else if (char_literal.StartsWith("\\u")) {
+                return String.Format(
+                    "\t\t\tldc.i8 0x{0}\n",
+                    char_literal.Replace("\\u", "")
+                );
+            }
+            else {
+                return String.Format(
+                    "\t\t\tldc.i8 {0}\n",
+                    char.ConvertToUtf32(char_literal, 0)
+                );
+            }
+        }
 
         //-----------------------------------------------------------
-        public string Visit(StringLiteral node) {return "";}
+        public string Visit(StringLiteral node) {
+            return String.Format(
+                "\t\t\tldstr {0}\n",
+                node.AnchorToken.Lexeme
+            );
+        }
 
         //-----------------------------------------------------------
-        public string Visit(Assignment node) {return "";}
+        public string Visit(Assignment node) {
+            string id = node[0].AnchorToken.Lexeme;
+            string literal = Visit((dynamic) node[1]);
+
+            if (this.Functions[this.currentScope].ContainsLocalVar(id)) {
+                return String.Format(
+                    "{0}\t\t\tstloc '{1}'\n",
+                    literal, id
+                );
+            }
+            else if (this.Functions[this.currentScope].ContainsParameter(id)) {
+                return String.Format(
+                    "{0}\t\t\tstarg '{1}'\n",
+                    literal, id
+                );
+            }
+            else {
+                return String.Format(
+                    "{0}\t\t\tstsfld int64 int64Program::'{1}'\n",
+                    literal, id
+                );
+            }
+        }
 
     }
 }
