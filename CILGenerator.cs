@@ -122,7 +122,7 @@ namespace int64 {
             sb.Append(String.Format(
                 "\t\t.method public static hidebysig" +
                     "\n\t\t\tdefault int64 {0} ({1}) cil managed ¿\n" +
-                    "{2}{3}\n\t\t?\n\n",
+                    "{2}{3}\n\t\t\tldc.i8.0\n\t\t\tret\n\t\t?\n\n",
                 "'" + node.AnchorToken.Lexeme + "'",
                 parameters.ToString(),
                 localVars.ToString(),
@@ -162,22 +162,17 @@ namespace int64 {
                 }
                 else if (child is ElseIfList) {
                     sb.Append(String.Format(
-                        "\t\t{0}:\n{1}\n",
+                        "\t\t{0}:\n{1}",
                         this.lastLabel,
                         Visit((dynamic) child)
                     ));
                 }
                 else { //Condition node
-                    if (child is Identifier) {
-                        sb.Append(String.Format(
-                            "{0}\t\t\tbrfalse {1}\n",
-                            Visit((dynamic) child),
-                            GenerateLabel()
-                        ));
-                    }
-                    else {
-                        sb.Append( Visit((dynamic) child) );
-                    }
+                    sb.Append(String.Format(
+                        "{0}\t\t\tbrfalse {1}\n",
+                        Visit((dynamic) child),
+                        GenerateLabel()
+                    ));
                 }
             }
             return sb.ToString();
@@ -200,18 +195,11 @@ namespace int64 {
                     sb.Append( Visit((dynamic) child) );
                 }
                 else { //Condition node
-                    if (child is Identifier) {
-                        if (child is Identifier) {
-                            sb.Append(String.Format(
-                                "{0}\t\t\tbrfalse {1}\n",
-                                Visit((dynamic) child),
-                                GenerateLabel()
-                            ));
-                        }
-                    }
-                    else {
-                        sb.Append( Visit((dynamic) child) );
-                    }
+                    sb.Append(String.Format(
+                        "{0}\t\t\tbrfalse {1}\n",
+                        Visit((dynamic) child),
+                        GenerateLabel()
+                    ));
                 }
             }
             sb.Append(String.Format(
@@ -264,25 +252,162 @@ namespace int64 {
         //-----------------------------------------------------------
         public string Visit(StmtEmpty node) {return "";}
 
-        //-----------------------------------------------------------
-        public string Visit(TernaryOperator node) {return "";}
+        //----------------- ARITHMETIC OPERATORS -----------------//
+        public string Visit(Minus node) {
+            short children = 0;
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+                children++;
+            }
+            if (children > 1) {
+                sb.Append("\t\t\tsub\n");
+            } else {
+                sb.Append("\t\t\tneg\n");
+            }
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
-        public string Visit(LogicalOr node) {return "";}
+        public string Visit(Plus node) {
+            short children = 0;
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+                children++;
+            }
+            if (children > 1) {
+                sb.Append("\t\t\tadd\n");
+            }
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(Power node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tcall int64 class ['int64lib']'Int64'.'Utils'::'Pow'(int64, int64)\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(Times node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tmul\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(Division node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tdiv\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(Remainder node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\trem\n");
+            return sb.ToString();
+        }
+
+        //------------------ BITWISE OPERATORS ------------------//
+        public string Visit(BitwiseNot node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tnot\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(BitwiseAnd node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tand\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(BitwiseOr node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tor\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(BitwiseXor node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\txor\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(BitwiseShiftLeft node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tshl\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(BitwiseShiftRight node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tshr\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(BitwiseUnsignedShiftRight node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tshr.un\n");
+            return sb.ToString();
+        }
+
+        //------------------- LOGICAL OPERATORS -------------------//
+        public string Visit(LogicalNot node) {return "";}
 
         //-----------------------------------------------------------
         public string Visit(LogicalAnd node) {return "";}
 
         //-----------------------------------------------------------
+        public string Visit(LogicalOr node) {return "";}
+
+        //----------------- COMPARISON OPERATORS -----------------//
         public string Visit(Equal node) {
             var sb = new StringBuilder();
             foreach (var child in node) {
                 sb.Append( Visit((dynamic) child) );
             }
-            sb.Append(String.Format(
-                "\t\t\tbne.un {0}\n",
-                GenerateLabel()
-            ));
+            sb.Append("\t\t\tceq\n\t\t\tconv.i8\n");
             return sb.ToString();
         }
 
@@ -292,69 +417,81 @@ namespace int64 {
             foreach (var child in node) {
                 sb.Append( Visit((dynamic) child) );
             }
+            sb.Append("\t\t\tceq\n" +
+                        "\t\t\tnot\n" +
+                        "\t\t\tconv.i8\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(GreaterThan node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tcgt\n\t\t\tconv.i8\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(GreaterEqualThan node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tclt\n" +
+                        "\t\t\tnot\n" +
+                        "\t\t\tconv.i8\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(LessThan node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tclt\n\t\t\tconv.i8\n");
+            return sb.ToString();
+        }
+
+        //-----------------------------------------------------------
+        public string Visit(LessEqualThan node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append("\t\t\tcgt\n" +
+                        "\t\t\tnot\n" +
+                        "\t\t\tconv.i8\n");
+            return sb.ToString();
+        }
+
+        //------------------- OTHERS OPERATORS -------------------//
+        public string Visit(FunCall node) {
+            var functionName = node.AnchorToken.Lexeme;
+
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+
+            var arity = new StringBuilder();
+            for (var i = 0; i < this.Functions[functionName].Arity; i++) {
+                arity.Append("int64, ");
+            }
+            arity.Append("?").Replace(", ?", "");
+
             sb.Append(String.Format(
-                "\t\t\tbeq {0}\n",
-                GenerateLabel()
+                "\t\t\tcall int64 c{2}lass int64Program::{0}({1})\n",
+                "'" + functionName + "'",
+                arity.ToString(),""
             ));
             return sb.ToString();
         }
 
         //-----------------------------------------------------------
-        public string Visit(GreaterThan node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(GreaterEqualThan node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(LessThan node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(LessEqualThan node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseOr node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseXor node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseAnd node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseShiftLeft node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseShiftRight node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseUnsignedShiftRight node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(Plus node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(Minus node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(Times node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(Division node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(Remainder node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(Power node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(BitwiseNot node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(LogicalNot node) {return "";}
-
-        //-----------------------------------------------------------
-        public string Visit(FunCall node) {return "";}
+        public string Visit(TernaryOperator node) {return "";}
 
         //-----------------------------------------------------------
         public string Visit(ArrayList node) {return "";}
@@ -366,6 +503,7 @@ namespace int64 {
         public string Visit(False node) {return "";}
 
         //-----------------------------------------------------------
+        /* Exclusive use for variables in statements*/
         public string Visit(Identifier node) {
             var id = node.AnchorToken.Lexeme;
             if (this.Functions[this.currentScope].ContainsLocalVar(id)) {
@@ -398,154 +536,5 @@ namespace int64 {
         //-----------------------------------------------------------
         public string Visit(Assignment node) {return "";}
 
-
-
-
-
-
-
-
-
-
-        //
-        // public string Visit(DeclarationList node) {
-        //     // The code for the local variable declarations is
-        //     // generated directly from the symbol table, not from
-        //     // the AST nodes.
-        //     var sb = new StringBuilder();
-        //     foreach (var entry in table) {
-        //         sb.Append(String.Format(
-        //                       "\t\t.locals init ({0} '{1}')\n",
-        //                       CILTypes[entry.Value],
-        //                       entry.Key)
-        //                   );
-        //     }
-        //     return sb.ToString();
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Declaration node) {
-        //     // This method is never called.
-        //     return null;
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(StatementList node) {
-        //     return VisitChildren(node);
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Assignment node) {
-        //     return Visit((dynamic) node[0])
-        //         + "\t\tstloc '"
-        //         + node.AnchorToken.Lexeme
-        //         + "'\n";
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Print node) {
-        //     return Visit((dynamic) node[0])
-        //         + "\t\tcall void class ['bcuplib']'Buttercup'."
-        //         + "'Utils'::'Print'("
-        //         + CILTypes[node.ExpressionType]
-        //         + ")\n";
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(If node) {
-        //
-        //     var label = GenerateLabel();
-        //
-        //     return String.Format(
-        //         "{1}\t\tbrfalse '{0}'\n{2}\t'{0}':\n",
-        //         label,
-        //         Visit((dynamic) node[0]),
-        //         Visit((dynamic) node[1])
-        //     );
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Identifier node) {
-        //     return "\t\tldloc '"
-        //         + node.AnchorToken.Lexeme
-        //         + "'\n";
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(IntLiteral node) {
-        //
-        //     var intValue = Convert.ToInt32(node.AnchorToken.Lexeme);
-        //
-        //     if (intValue <= 8) {
-        //         return "\t\tldc.i4."
-        //             + intValue
-        //             + "\n";
-        //
-        //     } else if (intValue <= 127) {
-        //         return "\t\tldc.i4.s "
-        //             + intValue
-        //             + "\n";
-        //
-        //     } else {
-        //         return "\t\tldc.i4 "
-        //             + intValue
-        //             + "\n";
-        //     }
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(True node) {
-        //     return "\t\tldc.i4.1\n";
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(False node) {
-        //     return "\t\tldc.i4.0\n";
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Neg node) {
-        //     return "\t\tldc.i4.0\n"
-        //         + Visit((dynamic) node[0])
-        //         + "\t\tsub.ovf\n";
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(And node) {
-        //     return VisitBinaryOperator("and", node);
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Less node) {
-        //     return VisitBinaryOperator("clt", node);
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Plus node) {
-        //     return VisitBinaryOperator("add.ovf", node);
-        // }
-        //
-        // //-----------------------------------------------------------
-        // public string Visit(Mul node) {
-        //     return VisitBinaryOperator("mul.ovf", node);
-        // }
-        //
-        // //-----------------------------------------------------------
-        // string VisitChildren(Node node) {
-        //     var sb = new StringBuilder();
-        //     foreach (var n in node) {
-        //         sb.Append(Visit((dynamic) n));
-        //     }
-        //     return sb.ToString();
-        // }
-        //
-        // //-----------------------------------------------------------
-        // string VisitBinaryOperator(string op, Node node) {
-        //     return Visit((dynamic) node[0])
-        //         + Visit((dynamic) node[1])
-        //         + "\t\t"
-        //         + op
-        //         + "\n";
-        // }
     }
 }

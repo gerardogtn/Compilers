@@ -15,7 +15,10 @@
 			.locals init (
 				int64 'a',
 				int64 'x')
+			call int64 class int64Program::'prints'(int64)
 
+			ldc.i8.0
+			ret
 		}
 
 		.method public static hidebysig
@@ -24,19 +27,34 @@
 				int64 'local_Param')
 			ldarg param1
 			ldarg param2
-			bne.un '$000000'
+			ceq
+			conv.i8
+			brfalse '$000000'
+			call int64 class int64Program::'prints'(int64)
 		'$000000':
 			ldarg param1
 			ldarg param2
-			beq '$000001'
+			ceq
+			not
+			conv.i8
+			brfalse '$000001'
+			call int64 class int64Program::'prints'(int64)
 		'$000001':
-		'$000001':
-
-			ldloc local_Param
+			ldarg param1
+			ldarg param2
+			clt
+			conv.i8
 			brfalse '$000002'
+			call int64 class int64Program::'prints'(int64)
 		'$000002':
+			call int64 class int64Program::'prints'(int64)
+			ldloc local_Param
+			brfalse '$000003'
+			call int64 class int64Program::'prints'(int64)
+		'$000003':
 
-
+			ldc.i8.0
+			ret
 		}
 
 		ret
