@@ -10,7 +10,7 @@ PHASE1 = Token.cs TokenCategory.cs Scanner.cs
 PHASE2 = Parser.cs SyntaxError.cs
 PHASE3 = Node.cs SpecificNodes.cs
 PHASE4 = INodeVisitor.cs SemanticAnalyzer.cs SymbolTable.cs SemanticError.cs
-PHASE5 = CILGenerator.cs int64lib.cs
+PHASE5 = CilGenerator.cs
 
 make: clean int64
 
@@ -30,7 +30,7 @@ phase4: Semantic.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4)
 	@mcs -nowarn:414,168 -out:int64_semantic $?
 	@echo Compiling int64_semantic... Ready.
 
-int64: Driver.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4) #$(PHASE5)
+int64: Driver.cs $(PHASE1) $(PHASE2) $(PHASE3) $(PHASE4) $(PHASE5)
 	@mcs /t:library int64lib.cs
 	@mcs -nowarn:414,168 /r:int64lib.dll -out:int64 $?
 	@echo Compiling int64... ready

@@ -78,6 +78,7 @@ namespace int64 {
     class BitwiseNot : Node {}
     class LogicalNot : Node {}
 
+    class StmtFunCall : Node {}
     class FunCall: Node {}
     class ExprList : Node {}
     class ArrayList : Node {}

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace int64 {
 
@@ -262,6 +263,10 @@ namespace int64 {
         }
 
         public void Visit(LogicalNot node) {
+
+        }
+
+        public void Visit(StmtFunCall node) {
 
         }
 
@@ -563,19 +568,24 @@ namespace int64 {
             VisitChildren(node);
         }
 
-        public void Visit(FunCall node) {
+        public void Visit(StmtFunCall node) {
             var functionName = node.AnchorToken.Lexeme;
-            var size = 0;
-            foreach (var n in node) {
-                size++;
-            }
-            if(FunctionNamespace.ContainsKey(functionName) && FunctionNamespace[functionName].Arity == size){
+            var size = node.Count();
+            VisitChildren(node);
 
-            }
-            else{
+            if (!(FunctionNamespace.ContainsKey(functionName) && FunctionNamespace[functionName].Arity == size)) {
                 throw new SemanticError("Invalid function call! " + functionName, node.AnchorToken);
             }
+        }
+
+        public void Visit(FunCall node) {
+            var functionName = node.AnchorToken.Lexeme;
+            var size = node.Count();
             VisitChildren(node);
+            
+            if (!(FunctionNamespace.ContainsKey(functionName) && FunctionNamespace[functionName].Arity == size)) {
+                throw new SemanticError("Invalid function call! " + functionName, node.AnchorToken);
+            }
         }
 
         public IList<Node> Visit(ArrayList node) {
@@ -583,7 +593,7 @@ namespace int64 {
         }
 
         public void Visit(True node) {
-
+            
         }
 
         public void Visit(False node) {

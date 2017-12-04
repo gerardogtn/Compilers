@@ -586,10 +586,10 @@ namespace int64 {
 
         public Node ExprPow() {
             var result = ExprUnary();
-            while (CurrentToken == TokenCategory.POWER){
+            if (CurrentToken == TokenCategory.POWER){
                 var node = new Power() { AnchorToken = Expect(TokenCategory.POWER) };
-                node.Add(ExprUnary());
                 node.Add(result);
+                node.Add(ExprPow());
                 result = node;
             }
             return result;
@@ -664,7 +664,10 @@ namespace int64 {
                 Expect(TokenCategory.SEMICOLON);
                 return result;
             } else if (CurrentToken == TokenCategory.PARENTHESIS_OPEN) {
-                var result = FunCall(id);
+                var result = new StmtFunCall() { AnchorToken = id };
+                Expect(TokenCategory.PARENTHESIS_OPEN);
+                ExprList(result);
+                Expect(TokenCategory.PARENTHESIS_CLOSE);
                 Expect(TokenCategory.SEMICOLON);
                 return result;
             } else {

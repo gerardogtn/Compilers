@@ -59,6 +59,7 @@ namespace int64 {
 		void Visit(BitwiseNot node);
 		void Visit(LogicalNot node);
 
+		void Visit(StmtFunCall node);
 		void Visit(FunCall node);
 		IList<Node> Visit(ArrayList node);
 
