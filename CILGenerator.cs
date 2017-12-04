@@ -40,7 +40,7 @@ namespace int64 {
 
         string GenerateLabel() {
             this.lastLabel = String.Format("'${0:000000}'", labelCounter++);
-            return lastLabel;
+            return this.lastLabel;
         }
 
 
@@ -80,8 +80,8 @@ namespace int64 {
             foreach (var parameter in node) {
                 sb.Append(String.Format(
                     "int64 {0}, ",
-                    Visit((dynamic) parameter))
-                );
+                    "'" + parameter.AnchorToken.Lexeme + "'"
+                ));
             }
             if (sb.Length > 0) {
                 sb.Remove(sb.Length-2, 2); // Remove extra comma
@@ -107,8 +107,8 @@ namespace int64 {
                     foreach (var localVar in child) {
                         localVars.Append(String.Format(
                             "\n\t\t\t\tint64 {0},",
-                            Visit((dynamic) localVar))
-                        );
+                            "'" + localVar.AnchorToken.Lexeme + "'"
+                        ));
                     }
                     localVars.Append(")\n");
                     localVars.Replace(",)", ")");
@@ -138,8 +138,8 @@ namespace int64 {
            foreach (var id in node) {
                sb.Append(String.Format(
                     "\t\t.field private static int64 {0}\n",
-                    Visit((dynamic) id))
-               );
+                    "'" + id.AnchorToken.Lexeme + "'"
+               ));
            }
            return sb.ToString();
         }
@@ -162,31 +162,18 @@ namespace int64 {
                 }
                 else if (child is ElseIfList) {
                     sb.Append(String.Format(
-                        "\t\t{0}:{1}\n",
-                        lastLabel,
+                        "\t\t{0}:\n{1}\n",
+                        this.lastLabel,
                         Visit((dynamic) child)
                     ));
                 }
                 else { //Condition node
-                    if (child.AnchorToken.Category == TokenCategory.IDENTIFIER) {
-                        if (this.Functions[this.currentScope].ContainsLocalVar(node.AnchorToken.Lexeme)) {
-                            sb.Append(String.Format(
-                                "\t\t\tldloc {0}\n",
-                                Visit((dynamic) child)
-                            ));
-                        }
-                        else if (this.Functions[this.currentScope].ContainsParameter(node.AnchorToken.Lexeme)) {
-                            sb.Append(String.Format(
-                                "\t\t\tldarg {0}\n",
-                                Visit((dynamic) child)
-                            ));
-                        }
-                        else {
-                            sb.Append(String.Format(
-                                "\t\t\tldsfld int64 int64Program::{0}\n",
-                                Visit((dynamic) child)
-                            ));
-                        }
+                    if (child is Identifier) {
+                        sb.Append(String.Format(
+                            "{0}\t\t\tbrfalse {1}\n",
+                            Visit((dynamic) child),
+                            GenerateLabel()
+                        ));
                     }
                     else {
                         sb.Append( Visit((dynamic) child) );
@@ -197,16 +184,52 @@ namespace int64 {
         }
 
         //-----------------------------------------------------------
-        public string Visit(ElseIfList node) {return "";}
+        public string Visit(ElseIfList node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
-        public string Visit(ElseIf node) {return "";}
+        public string Visit(ElseIf node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                if (child is StmtList) {
+                    sb.Append( Visit((dynamic) child) );
+                }
+                else { //Condition node
+                    if (child is Identifier) {
+                        if (child is Identifier) {
+                            sb.Append(String.Format(
+                                "{0}\t\t\tbrfalse {1}\n",
+                                Visit((dynamic) child),
+                                GenerateLabel()
+                            ));
+                        }
+                    }
+                    else {
+                        sb.Append( Visit((dynamic) child) );
+                    }
+                }
+            }
+            sb.Append(String.Format(
+                "\t\t{0}:\n",
+                this.lastLabel
+            ));
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
-        public string Visit(Else node) {return "";}
+        public string Visit(Else node) {
+            return Visit((dynamic) node[0]);
+        }
 
         //-----------------------------------------------------------
-        public string Visit(StmtSwitch node) {return "";}
+        public string Visit(StmtSwitch node) {
+            return "";
+        }
 
         //-----------------------------------------------------------
         public string Visit(CaseList node) {return "";}
@@ -254,24 +277,7 @@ namespace int64 {
         public string Visit(Equal node) {
             var sb = new StringBuilder();
             foreach (var child in node) {
-                if (this.Functions[this.currentScope].ContainsLocalVar(node.AnchorToken.Lexeme)) {
-                    sb.Append(String.Format(
-                        "\t\t\tldloc {0}\n",
-                        Visit((dynamic) child)
-                    ));
-                }
-                else if (this.Functions[this.currentScope].ContainsParameter(node.AnchorToken.Lexeme)) {
-                    sb.Append(String.Format(
-                        "\t\t\tldarg {0}\n",
-                        Visit((dynamic) child)
-                    ));
-                }
-                else {
-                    sb.Append(String.Format(
-                        "\t\t\tldsfld int64 int64Program::{0}\n",
-                        Visit((dynamic) child)
-                    ));
-                }
+                sb.Append( Visit((dynamic) child) );
             }
             sb.Append(String.Format(
                 "\t\t\tbne.un {0}\n",
@@ -281,7 +287,17 @@ namespace int64 {
         }
 
         //-----------------------------------------------------------
-        public string Visit(NotEqual node) {return "";}
+        public string Visit(NotEqual node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                sb.Append( Visit((dynamic) child) );
+            }
+            sb.Append(String.Format(
+                "\t\t\tbeq {0}\n",
+                GenerateLabel()
+            ));
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
         public string Visit(GreaterThan node) {return "";}
@@ -351,7 +367,23 @@ namespace int64 {
 
         //-----------------------------------------------------------
         public string Visit(Identifier node) {
-           return "'" + node.AnchorToken.Lexeme + "'";
+            var id = node.AnchorToken.Lexeme;
+            if (this.Functions[this.currentScope].ContainsLocalVar(id)) {
+                return String.Format(
+                    "\t\t\tldloc {0}\n", id
+                );
+            }
+            else if (this.Functions[this.currentScope].ContainsParameter(id)) {
+                return String.Format(
+                    "\t\t\tldarg {0}\n", id
+                );
+            }
+            else {
+                return String.Format(
+                    "\t\t\tldsfld int64 int64Program::{0}\n", id
+                );
+            }
+           // return "'" + node.AnchorToken.Lexeme + "'";
         }
 
         //-----------------------------------------------------------

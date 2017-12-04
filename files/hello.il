@@ -22,11 +22,20 @@
 			default int64 'otherFunction' (int64 'param1', int64 'param2') cil managed {
 			.locals init (
 				int64 'local_Param')
-			ldsfld int64 int64Program::'param1'
-			ldsfld int64 int64Program::'param2'
+			ldarg param1
+			ldarg param2
 			bne.un '$000000'
 		'$000000':
-		'$000000':
+			ldarg param1
+			ldarg param2
+			beq '$000001'
+		'$000001':
+		'$000001':
+
+			ldloc local_Param
+			brfalse '$000002'
+		'$000002':
+
 
 		}
 

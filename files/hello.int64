@@ -18,13 +18,16 @@ otherFunction(param1, param2) {
     if (param1 == param2) {
         prints("They are equal.\n");
     }
-    else if (param1 > param2) {
+    else if (param1 != param2) {
         prints("First is bigger.\n");
     }
     else if (param1 < param2) {
         prints("Second is bigger.\n");
     }
-    if (1) {
+    else {
         prints("Else reached.");
+    }
+    if (local_Param) {
+        prints("Id as conditional");
     }
 }
