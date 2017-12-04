@@ -596,22 +596,13 @@ namespace Int64 {
         }
 
         public Node ExprUnary() {
-            Node result = null;
-            while (firstOfUnary.Contains(CurrentToken)) {
+            if (firstOfUnary.Contains(CurrentToken)) {
                 var node = OpUnary();
-                if (result != null) {
-                    node.Add(result);
-                }
-                result = node;
-            }
-
-            var expr = ExprPrimary();
-            if (result != null) {
-                result.Add(expr);
+                node.Add(ExprUnary());
+                return node;
             } else {
-                result = expr;
+                return ExprPrimary();
             }
-            return result;
         }
 
         public Node OpUnary(){
