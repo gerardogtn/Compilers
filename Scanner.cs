@@ -25,7 +25,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace int64 {
+namespace Int64 {
 
     class Scanner {
 

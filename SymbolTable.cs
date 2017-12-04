@@ -20,7 +20,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace int64 {
+namespace Int64 {
 
     public class SymbolTable: IEnumerable<KeyValuePair<string, Type>> {
 

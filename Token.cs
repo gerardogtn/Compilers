@@ -21,7 +21,7 @@ Gerardo Teruel A01018057
 
 using System;
 
-namespace int64 {
+namespace Int64 {
 
     class Token {
 

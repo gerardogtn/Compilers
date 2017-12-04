@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Text;
 
-namespace int64 {
+namespace Int64 {
 	class CilGenerator : INodeVisitor {
 
 		private StringBuilder Builder;
@@ -87,12 +87,13 @@ namespace int64 {
 
 		public void Visit(Program node) {
 			WriteLine(".assembly 'output' { }\n");
+			WriteLine(".assembly extern 'int64lib' { }\n");
 			WriteLine(".class public '", FileName, "' extends ['mscorlib']'System'.'Object' {\n");
 			IndentLevel++;
 			foreach (var n in node) {
 				if (n.GetType() == typeof(VarDefList)) {
 					VisitGlobalVariables((VarDefList) node[0]);
-			this.Builder.AppendLine();
+					this.Builder.AppendLine();
 				} else {
 					Visit((dynamic) n);
 				}
@@ -179,7 +180,8 @@ namespace int64 {
 			WriteLine("brtrue ", consequentLabel, "\n");
 
 			// Go to elseif
-			Visit((dynamic) node[2]);
+			var ElseIfList = (ElseIfList) node[2];
+			Visit(ElseIfList);
 
 			// Assert consequent and exit.
 			WriteLabel(consequentLabel);
@@ -213,7 +215,7 @@ namespace int64 {
 			WriteLine("br ", ExitLabels.Peek(), "\n");
 
 			// Else if bodies. 
-			for (int i = 0; i < node.Count(); i++) {
+			for (int i = 0; i < labels.Count; i++) {
 				WriteLabel(labels[i]);
 				var child = node[i];
 				if (child is ElseIf) {
@@ -232,7 +234,6 @@ namespace int64 {
 		}
 
 		public void Visit(StmtSwitch node) {
-			Identifier Identifier = (Identifier) node[0];
 			CaseList CaseList = (CaseList) node[1];
 			Default Default = (Default) node[2];
 
@@ -243,7 +244,7 @@ namespace int64 {
 				labels.Add(label);
 
 				foreach (var lit in _case[0]) {
-					Visit(Identifier);
+					Visit((dynamic) node[0]);
 					Visit((dynamic) lit);
 					WriteLine("brtrue ", label);
 				}
@@ -398,9 +399,9 @@ namespace int64 {
 		public void Visit(NotEqual node) {
 			VisitChildren(node);
 			WriteLine("ceq");
-			WriteLine("neg");
+			WriteLine("ldc.i4 0");
+			WriteLine("ceq");
 		}
-
 
 		public void Visit(GreaterThan node) {
 			VisitChildren(node);
@@ -410,7 +411,8 @@ namespace int64 {
 		public void Visit(GreaterEqualThan node) {
 			VisitChildren(node);
 			WriteLine("clt");
-			WriteLine("neg");
+			WriteLine("ldc.i4 0");
+			WriteLine("ceq");
 		}
 
 		public void Visit(LessThan node) {
@@ -421,7 +423,8 @@ namespace int64 {
 		public void Visit(LessEqualThan node) {
 			VisitChildren(node);
 			WriteLine("cgt");
-			WriteLine("neg");
+			WriteLine("ldc.i4 0");
+			WriteLine("ceq");
 		}
 
 		public void Visit(BitwiseOr node) {
@@ -441,25 +444,25 @@ namespace int64 {
 
 		public void Visit(BitwiseShiftLeft node) {
 			VisitChildren(node);
-			WriteLine("conv i4");
+			WriteLine("conv.i4");
 			WriteLine("shl");
 		}
 
 		public void Visit(BitwiseShiftRight node) {
 			VisitChildren(node);
-			WriteLine("conv i4");
+			WriteLine("conv.i4");
 			WriteLine("shr");
 		}
 
 		public void Visit(BitwiseUnsignedShiftRight node) {
 			VisitChildren(node);
-			WriteLine("conv i4");
+			WriteLine("conv.i4");
 			WriteLine("shr.un");
 		}
 
 		public void Visit(Plus node) {
 			VisitChildren(node);
-			if (node.Count() == 1) {
+			if (node.Count() > 1) {
 				WriteLine("add.ovf");
 			}
 		}
@@ -481,7 +484,7 @@ namespace int64 {
 
 		public void Visit(Division node) {
 			VisitChildren(node);
-			WriteLine("div.ovf");
+			WriteLine("div");
 
 		}
 
@@ -565,7 +568,7 @@ namespace int64 {
 			} else if (FunctionNamespace[CurrentFunction].Parameters.Contains(lexeme)) {
 				WriteLine("ldarg '", lexeme, "'");
 			} else if (GlobalVariablesNamespace.Contains(lexeme)) {
-				WriteLine("ldsfld '", lexeme, "'");
+				WriteLine("ldsfld int64 '", FileName, "'::'", lexeme, "'");
 			} else {
 				throw new InvalidOperationException("Found a variable that is not in parameters, or locals, or globals");
 			}
@@ -589,11 +592,26 @@ namespace int64 {
 		}
 
 		public void Visit(CharLiteral node) {
-
+			String lexeme = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
+			Console.WriteLine(lexeme);
+			long value = char.ConvertToUtf32(lexeme, lexeme.Length - 1);
+			WriteLine("ldc.i8 ", value.ToString());
 		}
 
 		public void Visit(StringLiteral node) {
-
+			String s = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
+			var size = s.Length;
+			WriteLine("ldc.i8 ", Utils.AsCodePoints(s).Count().ToString());
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
+			int i = 0;
+			foreach (var l in Utils.AsCodePoints(s)) {
+				WriteLine("dup");
+				WriteLine("ldc.i8 ", i.ToString());
+				WriteLine("ldc.i8 ", l.ToString());
+				WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)");
+				WriteLine("pop");
+				i += 1;
+			}
 		}
 
 		public void Visit(Assignment node) {

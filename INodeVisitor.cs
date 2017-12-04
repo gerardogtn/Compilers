@@ -1,7 +1,7 @@
 
 using System.Collections.Generic;
 
-namespace int64 {
+namespace Int64 {
 
 	interface INodeVisitor {
 		void Visit(Program node);

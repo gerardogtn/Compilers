@@ -19,7 +19,7 @@ Gerardo Teruel A01018057
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace int64 {
+namespace Int64 {
 
     enum TokenCategory {
         /* Identifier */

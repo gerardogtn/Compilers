@@ -18,7 +18,7 @@
 
 using System;
 
-namespace int64 {
+namespace Int64 {
 
     class SemanticError: Exception {
 

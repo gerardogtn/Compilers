@@ -17,7 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-namespace int64 {
+namespace Int64 {
 
     class Program: Node {}
     class DefList: Node {}

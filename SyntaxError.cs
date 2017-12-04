@@ -23,7 +23,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace int64 {
+namespace Int64 {
 
     class SyntaxError: Exception {
 

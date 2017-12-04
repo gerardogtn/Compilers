@@ -24,7 +24,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace int64 {
+namespace Int64 {
 
     class Parser {
 

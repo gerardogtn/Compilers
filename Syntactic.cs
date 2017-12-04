@@ -24,7 +24,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace int64 {
+namespace Int64 {
 
    class Compiler {
       public static void Main(string[] args) {

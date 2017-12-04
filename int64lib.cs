@@ -176,7 +176,7 @@ namespace Int64 {
         //----------------------------------------------------------------------
         // Local function that allows obtaining all the individual Unicode code
         // points of a given string.
-        private static IEnumerable<long> AsCodePoints(string str) {
+        public static IEnumerable<long> AsCodePoints(string str) {
             for(int i = 0; i < str.Length; i++) {
                 yield return char.ConvertToUtf32(str, i);
                 if (char.IsHighSurrogate(str, i)) {

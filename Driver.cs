@@ -24,7 +24,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace int64 {
+namespace Int64 {
 
     public class Driver {
 
@@ -122,10 +122,11 @@ namespace int64 {
             } catch (Exception e) {
                 if (e is FileNotFoundException || e is SyntaxError || e is SemanticError) {
                     Console.Error.WriteLine(e.Message);
-                    Environment.Exit(1);
                 } else {
-                  throw e;
+                    Console.Error.WriteLine(e.ToString());
                 }
+
+                Environment.Exit(1);
             }
         }
 
