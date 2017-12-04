@@ -414,12 +414,19 @@ namespace int64 {
 
 		public void Visit(Plus node) {
 			VisitChildren(node);
-			WriteLine("add.ovf");
+			if (node.Count() == 1) {
+				WriteLine("add.ovf");
+			}
 		}
 
 		public void Visit(Minus node) {
+			if (node.Count() == 1) {
+				WriteLine("ldc.i4 0");
+				WriteLine("conv.u8");
+			}
 			VisitChildren(node);
 			WriteLine("sub.ovf");
+
 		}
 
 
