@@ -655,6 +655,22 @@ namespace int64 {
             set;
         }
 
+        public bool ContainsLocalVar(string name) {
+            if (LocalVars.Contains(name)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public bool ContainsParameter(string name) {
+            if (Parameters.Contains(name)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
         public FunctionDefinition(String Name, int Arity, ISet<String> Parameters, ISet<String> LocalVars) {
             this.Name = Name;
             this.Arity = Arity;

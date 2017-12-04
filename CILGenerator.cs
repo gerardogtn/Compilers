@@ -24,6 +24,7 @@ namespace int64 {
 
     class CILGenerator {
 
+        string currentScope;
         ISet<String> GlobalVariables;
         Dictionary<String, FunctionDefinition> Functions;
 
@@ -35,9 +36,11 @@ namespace int64 {
         //-----------------------------------------------------------
 
         int labelCounter = 0;
+        string lastLabel;
 
         string GenerateLabel() {
-            return String.Format("${0:000000}", labelCounter++);
+            this.lastLabel = String.Format("'${0:000000}'", labelCounter++);
+            return lastLabel;
         }
 
 
@@ -55,7 +58,7 @@ namespace int64 {
                     continue;
                 }
                 functionsDefinition.Append(String.Format(
-                Visit((dynamic) child)
+                    Visit((dynamic) child)
                 ));
             }
 
@@ -67,7 +70,7 @@ namespace int64 {
    //------------------ GLOBAL VARIABLES ------------------//
 "  + globalVars.ToString() + @"
    //--------------------- FUNCTIONS ---------------------//
-"  + functionsDefinition.ToString()
+"  + functionsDefinition.ToString().Replace("¿","{").Replace("?","}")
       + "\t\tret\n\t}\n}\n";
         }
 
@@ -89,15 +92,15 @@ namespace int64 {
         //-----------------------------------------------------------
         public string Visit(FunDef node) {
 
+            this.currentScope = node.AnchorToken.Lexeme;
+
             var parameters = new StringBuilder();
             var localVars = new StringBuilder();
             var statements = new StringBuilder();
 
             foreach (var child in node) {
                 if (child is ParamList) {
-                    parameters.Append(String.Format(
-                        Visit((dynamic) child)
-                    ));
+                    parameters.Append( Visit((dynamic) child) );
                 }
                 else if (child is VarDefList) {
                     localVars.Append("\t\t\t.locals init (");
@@ -111,9 +114,7 @@ namespace int64 {
                     localVars.Replace(",)", ")");
                 }
                 else if (child is StmtList) {
-                    statements.Append(String.Format(
-                        Visit((dynamic) child)
-                    ));
+                    statements.Append( Visit((dynamic) child) );
                 }
             }
 
@@ -144,10 +145,56 @@ namespace int64 {
         }
 
         //-----------------------------------------------------------
-        public string Visit(StmtList node) {return "";}
+        public string Visit(StmtList node) {
+            var sb = new StringBuilder();
+            foreach (var statement in node) {
+                sb.Append( Visit((dynamic) statement) );
+            }
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
-        public string Visit(StmtIf node) {return "";}
+        public string Visit(StmtIf node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                if (child is StmtList) {
+                    sb.Append( Visit((dynamic) child) );
+                }
+                else if (child is ElseIfList) {
+                    sb.Append(String.Format(
+                        "\t\t{0}:{1}\n",
+                        lastLabel,
+                        Visit((dynamic) child)
+                    ));
+                }
+                else { //Condition node
+                    if (child.AnchorToken.Category == TokenCategory.IDENTIFIER) {
+                        if (this.Functions[this.currentScope].ContainsLocalVar(node.AnchorToken.Lexeme)) {
+                            sb.Append(String.Format(
+                                "\t\t\tldloc {0}\n",
+                                Visit((dynamic) child)
+                            ));
+                        }
+                        else if (this.Functions[this.currentScope].ContainsParameter(node.AnchorToken.Lexeme)) {
+                            sb.Append(String.Format(
+                                "\t\t\tldarg {0}\n",
+                                Visit((dynamic) child)
+                            ));
+                        }
+                        else {
+                            sb.Append(String.Format(
+                                "\t\t\tldsfld int64 int64Program::{0}\n",
+                                Visit((dynamic) child)
+                            ));
+                        }
+                    }
+                    else {
+                        sb.Append( Visit((dynamic) child) );
+                    }
+                }
+            }
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
         public string Visit(ElseIfList node) {return "";}
@@ -204,7 +251,34 @@ namespace int64 {
         public string Visit(LogicalAnd node) {return "";}
 
         //-----------------------------------------------------------
-        public string Visit(Equal node) {return "";}
+        public string Visit(Equal node) {
+            var sb = new StringBuilder();
+            foreach (var child in node) {
+                if (this.Functions[this.currentScope].ContainsLocalVar(node.AnchorToken.Lexeme)) {
+                    sb.Append(String.Format(
+                        "\t\t\tldloc {0}\n",
+                        Visit((dynamic) child)
+                    ));
+                }
+                else if (this.Functions[this.currentScope].ContainsParameter(node.AnchorToken.Lexeme)) {
+                    sb.Append(String.Format(
+                        "\t\t\tldarg {0}\n",
+                        Visit((dynamic) child)
+                    ));
+                }
+                else {
+                    sb.Append(String.Format(
+                        "\t\t\tldsfld int64 int64Program::{0}\n",
+                        Visit((dynamic) child)
+                    ));
+                }
+            }
+            sb.Append(String.Format(
+                "\t\t\tbne.un {0}\n",
+                GenerateLabel()
+            ));
+            return sb.ToString();
+        }
 
         //-----------------------------------------------------------
         public string Visit(NotEqual node) {return "";}

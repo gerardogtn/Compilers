@@ -11,18 +11,24 @@
 
    //--------------------- FUNCTIONS ---------------------//
 		.method public static hidebysig
-			default int64 'main' () cil managed ¿
+			default int64 'main' () cil managed {
 			.locals init (
 				int64 'a',
 				int64 'x')
-;
-		?
+
+		}
 
 		.method public static hidebysig
-			default int64 'otherFunction' (int64 'parameter1', int64 'parameter2', int64 'parameter3') cil managed ¿
-			.locals init ()
-;
-		?
+			default int64 'otherFunction' (int64 'param1', int64 'param2') cil managed {
+			.locals init (
+				int64 'local_Param')
+			ldsfld int64 int64Program::'param1'
+			ldsfld int64 int64Program::'param2'
+			bne.un '$000000'
+		'$000000':
+		'$000000':
+
+		}
 
 		ret
 	}
