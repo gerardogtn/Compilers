@@ -429,7 +429,6 @@ namespace int64 {
 
 		}
 
-
 		public void Visit(Times node) {
 			VisitChildren(node);
 			WriteLine("mul.ovf");
@@ -448,7 +447,8 @@ namespace int64 {
 
 
 		public void Visit(Power node) {
-
+			VisitChildren(node);
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Pow'(int64, int64)");
 		}
 
 
