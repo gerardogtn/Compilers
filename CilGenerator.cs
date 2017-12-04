@@ -642,6 +642,7 @@ namespace Int64 {
 					sb.Append(l.ToString());
 					j++;
 					if (j >= 6) {
+						sb.Append("\n");
 						flagx = false;
 					}
 					continue;
