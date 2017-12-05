@@ -514,7 +514,7 @@ namespace Int64 {
 
         public Node ExprBitShift() {
             var result = ExprAdd();
-            while(firstOfBitShift.Contains(CurrentToken)){
+            while(IsOpBitShift()){
                 var node = OpBitShift();
                 result.Add(node);
                 result.Add(ExprAdd());

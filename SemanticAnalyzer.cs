@@ -617,9 +617,11 @@ namespace Int64 {
                     radix = 2; 
                 }
                 if (number.StartsWith("0o") || number.StartsWith("0O")) {
+                    number = number.Replace("0o", "").Replace("0O", "");
                     radix = 8; 
                 }
                 if (number.StartsWith("0x") || number.StartsWith("0X")) {
+                    number = number.Replace("0x", "").Replace("0X", "");
                     radix = 16; 
                 }
                 long test = checked (Convert.ToInt64(number, radix));

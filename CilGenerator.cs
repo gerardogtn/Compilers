@@ -43,7 +43,7 @@ namespace Int64 {
 
         private string GenerateLabel() {
             return String.Format("${0:000000}", labelCounter++);
-        }
+         }
 
 		public CilGenerator(ISet<String> GlobalVariablesNamespace,
 				Dictionary<String, FunctionDefinition> FunctionNamespace) {
@@ -330,7 +330,58 @@ namespace Int64 {
 		}
 
 		public void Visit(StmtFor node) {
+			var bodyLabel = GenerateLabel();
+			var conditionLabel = GenerateLabel();
+			var exitLabel = GenerateLabel();
 
+			ContinueLabels.Push(conditionLabel);
+			BreakLabels.Push(exitLabel);
+
+			var indexLabel = GenerateLabel();
+			WriteLine(".locals init (int64 '", indexLabel, "')");
+			WriteLine("ldc.i8 0");
+			WriteLine("stloc '", indexLabel, "'");
+
+			// Visit condition.
+			WriteLine("br ", conditionLabel);
+
+			Visit((dynamic) node[1]);  // Get handle
+			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
+
+			// Store into variable
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Get'(int64, int64)"); 
+			var lexeme = node[0].AnchorToken.Lexeme;
+			if (FunctionNamespace[CurrentFunction].LocalVars.Contains(lexeme)) {
+				WriteLine("stloc '", lexeme, "'");
+			} else if (FunctionNamespace[CurrentFunction].Parameters.Contains(lexeme)) {
+				WriteLine("starg '", lexeme, "'");
+			} else if (GlobalVariablesNamespace.Contains(lexeme)) {
+				WriteLine("stsfld int64 '", FileName, "'::'", lexeme, "'");
+			} else {
+				throw new InvalidOperationException("Found a variable that is not in parameters, or locals, or globals");
+			}
+
+			WriteLabel(bodyLabel);
+			Visit((dynamic) node[2]);
+
+			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
+			WriteLine("ldc.i8 1");
+			WriteLine("add.ovf");
+			WriteLine("stloc '", indexLabel, "'"); // Set index. 
+
+			// Visit condition. 
+			WriteLabel(conditionLabel);
+			Visit((dynamic) node[1]);
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Size'(int64)"); 
+			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
+			WriteLine("clt");
+
+			// Jump back
+			WriteLine("brtrue ", bodyLabel);
+
+			WriteLabel(exitLabel);
+			ContinueLabels.Pop();
+			BreakLabels.Pop();
 		}
 
 		public void Visit(StmtBreak node) {
@@ -394,42 +445,49 @@ namespace Int64 {
 		public void Visit(Equal node) {
 			VisitChildren(node);
 			WriteLine("ceq");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(NotEqual node) {
 			VisitChildren(node);
 			WriteLine("ceq");
-			WriteLine("ldc.i4 0");
+			WriteLine("conv.i8");
+			WriteLine("ldc.i8 0");
 			WriteLine("ceq");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(GreaterThan node) {
 			VisitChildren(node);
 			WriteLine("cgt");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(GreaterEqualThan node) {
 			VisitChildren(node);
 			WriteLine("clt");
-			WriteLine("ldc.i4 0");
+			WriteLine("ldc.i8 0");
 			WriteLine("ceq");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(LessThan node) {
 			VisitChildren(node);
 			WriteLine("clt");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(LessEqualThan node) {
 			VisitChildren(node);
 			WriteLine("cgt");
-			WriteLine("ldc.i4 0");
+			WriteLine("ldc.i8 0");
 			WriteLine("ceq");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(BitwiseOr node) {
 			VisitChildren(node);
-			WriteLine("not");
+			WriteLine("or");
 		}
 
 		public void Visit(BitwiseXor node) {
@@ -446,17 +504,18 @@ namespace Int64 {
 			VisitChildren(node);
 			WriteLine("conv.i4");
 			WriteLine("shl");
+			WriteLine("conv.i8");
 		}
 
 		public void Visit(BitwiseShiftRight node) {
 			VisitChildren(node);
-			WriteLine("conv.i4");
+			WriteLine("conv.i8");
 			WriteLine("shr");
 		}
 
 		public void Visit(BitwiseUnsignedShiftRight node) {
 			VisitChildren(node);
-			WriteLine("conv.i4");
+			WriteLine("conv.i8");
 			WriteLine("shr.un");
 		}
 
@@ -469,7 +528,7 @@ namespace Int64 {
 
 		public void Visit(Minus node) {
 			if (node.Count() == 1) {
-				WriteLine("ldc.i4 0");
+				WriteLine("ldc.i8 0");
 				WriteLine("conv.u8");
 			}
 			VisitChildren(node);
@@ -502,13 +561,13 @@ namespace Int64 {
 
 		public void Visit(BitwiseNot node) {
 			VisitChildren(node);
-			WriteLine("neg");
+			WriteLine("not");
 		}
 
 		public void Visit(LogicalNot node) {
 			VisitChildren(node);
-			WriteLine("ldc.i4.0");
-			WriteLine("ceq");
+			WriteLine("ldc.i8 0"); 
+			WriteLine("ceq"); 
 			WriteLine("conv.i8");
 		}
 
@@ -547,9 +606,22 @@ namespace Int64 {
 		}
 
 		public IList<Node> Visit(ArrayList node) {
+			int size = node[0].Count();
+			WriteLine("ldc.i8 ", size.ToString());
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
+
+			int i = 0; 
+			foreach (var n in node[0]) {
+				WriteLine("dup");
+				WriteLine("ldc.i8 ", i.ToString());
+				Visit((dynamic) n);
+				WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)");
+				WriteLine("pop");
+				i += 1;
+			}
+
 			return null;
 		}
-
 
 		public void Visit(True node) {
             WriteLine("ldc.i4.1");
@@ -582,10 +654,12 @@ namespace Int64 {
                 radix = 2;
             }
             if (number.StartsWith("0o") || number.StartsWith("0O")) {
-                radix = 8;
+                    number = number.Replace("0o", "").Replace("0O", "");
+                    radix = 8; 
             }
             if (number.StartsWith("0x") || number.StartsWith("0X")) {
-                radix = 16;
+                number = number.Replace("0x", "").Replace("0X", "");
+                radix = 16; 
             }
             long value = checked (Convert.ToInt64(number, radix));
 			WriteLine("ldc.i8 ", value.ToString());
