@@ -514,10 +514,11 @@ namespace Int64 {
 
         public Node ExprBitShift() {
             var result = ExprAdd();
+
             while(IsOpBitShift()){
                 var node = OpBitShift();
-                result.Add(node);
-                result.Add(ExprAdd());
+                node.Add(result);
+                node.Add(ExprAdd());
                 result = node;
             }
             return result;
