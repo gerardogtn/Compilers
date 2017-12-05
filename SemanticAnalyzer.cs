@@ -582,7 +582,7 @@ namespace Int64 {
             var functionName = node.AnchorToken.Lexeme;
             var size = node.Count();
             VisitChildren(node);
-            
+
             if (!(FunctionNamespace.ContainsKey(functionName) && FunctionNamespace[functionName].Arity == size)) {
                 throw new SemanticError("Invalid function call! " + functionName, node.AnchorToken);
             }
@@ -593,7 +593,7 @@ namespace Int64 {
         }
 
         public void Visit(True node) {
-            
+
         }
 
         public void Visit(False node) {
@@ -610,17 +610,19 @@ namespace Int64 {
 
         public void Visit(IntLiteral node) {
             try {
-                String number = node.AnchorToken.Lexeme; 
-                int radix = 10; 
+                String number = node.AnchorToken.Lexeme;
+                int radix = 10;
                 if (number.StartsWith("0b") || number.StartsWith("0B")) {
                     number = number.Replace("0b", "").Replace("0B", "");
-                    radix = 2; 
+                    radix = 2;
                 }
                 if (number.StartsWith("0o") || number.StartsWith("0O")) {
-                    radix = 8; 
+                    number = number.Replace("0o", "").Replace("0O", "");
+                    radix = 8;
                 }
                 if (number.StartsWith("0x") || number.StartsWith("0X")) {
-                    radix = 16; 
+                    number = number.Replace("0x", "").Replace("0X", "");
+                    radix = 16;
                 }
                 long test = checked (Convert.ToInt64(number, radix));
             } catch (OverflowException) {

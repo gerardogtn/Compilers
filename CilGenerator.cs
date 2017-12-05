@@ -582,9 +582,11 @@ namespace Int64 {
                 radix = 2;
             }
             if (number.StartsWith("0o") || number.StartsWith("0O")) {
+				number = number.Replace("0o", "").Replace("0O", "");
                 radix = 8;
             }
             if (number.StartsWith("0x") || number.StartsWith("0X")) {
+				number = number.Replace("0x", "").Replace("0X", "");
                 radix = 16;
             }
             long value = checked (Convert.ToInt64(number, radix));
@@ -592,110 +594,122 @@ namespace Int64 {
 		}
 
 		public void Visit(CharLiteral node) {
-			string char_literal = node.AnchorToken.Lexeme.Replace("'","").Replace("\\","");
+			string char_literal = node.AnchorToken.Lexeme.Replace("'","");
 
-            Write("\t" + toCodePoints(char_literal));
-		}
-
-		public string toCodePoints(string char_literal) {
-			if (char_literal == "n") {
-                return "ldc.i8 10\n";
+            if (char_literal == "\\n") {
+                WriteLine("ldc.i8 10");
             }
-            else if (char_literal == "r") {
-                return "ldc.i8 13\n";
+            else if (char_literal == "\\r") {
+                WriteLine("ldc.i8 13");
             }
-            else if (char_literal == "t") {
-                return "ldc.i8 9\n";
+            else if (char_literal == "\\t") {
+                WriteLine("ldc.i8 9");
             }
-            else if (char_literal == "\\") {
-                return "ldc.i8 92\n";
+            else if (char_literal == "\\\\") {
+                WriteLine("ldc.i8 92");
             }
-            else if (char_literal == "'") {
-                return "ldc.i8 39\n";
+            else if (char_literal == "\\'") {
+                WriteLine("ldc.i8 39");
             }
-            else if (char_literal == "\"") {
-                return "ldc.i8 34\n";
+            else if (char_literal == "\\\"") {
+                WriteLine("ldc.i8 34");
             }
-            else if (char_literal.StartsWith("u")) {
-                return "ldc.i8 0x" + char_literal.Replace("u", "") + "\n";
+            else if (char_literal.StartsWith("\\u")) {
+                WriteLine("ldc.i8 0x", char_literal.Replace("\\u", ""));
             }
             else {
-				Console.WriteLine("What!!");
-                return "ldc.i8 " + char.ConvertToUtf32(char_literal, 0) + "\n";
+                WriteLine("ldc.i8 ", char.ConvertToUtf32(char_literal, 0));
             }
+			// String lexeme = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
+			// Console.WriteLine(lexeme);
+			// long value = char.ConvertToUtf32(lexeme, lexeme.Length - 1);
+			// WriteLine("ldc.i8 ", value.ToString());
 		}
 
 		public void Visit(StringLiteral node) {
+			// String s = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
+			// var size = s.Length;
+            //
+			// var count = Utils.AsCodePoints(s).Count();
+			// var sb = new StringBuilder();
+            //
+			// int i = 0;
+			// bool flag = false;
+			// bool flagx = false;
+			// short j = 0;
+			// foreach (var l in Utils.AsCodePoints(s)) {
+            //
+			// 	if (flagx) {
+			// 		sb.Append(l.ToString());
+			// 		j++;
+			// 		count--;
+			// 		if (j >= 6) {
+			// 			sb.Append("\n");
+			// 			flagx = false;
+			// 			i++;
+			// 		}
+			// 		continue;
+			// 	}
+            //
+			// 	if (l == '\\') {
+			// 		flag = true;
+			// 		count--;
+			// 		continue;
+			// 	}
+            //
+			// 	sb.Append("\tdup\n");
+			// 	sb.Append("\tldc.i8 " + i.ToString() + "\n");
+			// 	if (flag) {
+			// 		if (l == 110) {
+		    //             sb.Append("\tldc.i8 10\n");
+		    //         }
+		    //         else if (l == 114) {
+		    //             sb.Append("\tldc.i8 13\n");
+		    //         }
+		    //         else if (l == 116) {
+		    //             sb.Append("\tldc.i8 9\n");
+		    //         }
+		    //         else if (l == 92) {
+		    //             sb.Append("\tldc.i8 92\n");
+		    //         }
+		    //         else if (l == 39) {
+		    //             sb.Append("\tldc.i8 39\n");
+		    //         }
+		    //         else if (l == 34) {
+		    //             sb.Append("\tldc.i8 34\n");
+		    //         }
+		    //         else if (l == 117) {
+			// 			sb.Append("\tldc.i8 0x");
+		    //             flagx = true;
+			// 			flag = false;
+			// 			continue;
+		    //         }
+			// 		flag = false;
+			// 	}
+			// 	else {
+			// 		sb.Append("\tldc.i8 " + l.ToString() + "\n");
+			// 	}
+			// 	sb.Append("\tcall int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)\n");
+			// 	sb.Append("\tpop\n");
+			// 	i += 1;
+			// }
+            //
+			// WriteLine("ldc.i8 ", count.ToString());
+			// WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
+			// WriteLine(sb.ToString());
 			String s = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
 			var size = s.Length;
-
-			var count = Utils.AsCodePoints(s).Count();
-			var sb = new StringBuilder();
-
+			WriteLine("ldc.i8 ", Utils.AsCodePoints(s).Count().ToString());
+			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
 			int i = 0;
-			bool flag = false;
-			bool flagx = false;
-			short j = 0;
 			foreach (var l in Utils.AsCodePoints(s)) {
-
-				if (flagx) {
-					sb.Append(l.ToString());
-					j++;
-					count--;
-					if (j >= 6) {
-						sb.Append("\n");
-						flagx = false;
-						i++;
-					}
-					continue;
-				}
-
-				if (l == '\\') {
-					flag = true;
-					count--;
-					continue;
-				}
-
-				sb.Append("\tdup\n");
-				sb.Append("\tldc.i8 " + i.ToString() + "\n");
-				if (flag) {
-					if (l == 110) {
-		                sb.Append("\tldc.i8 10\n");
-		            }
-		            else if (l == 114) {
-		                sb.Append("\tldc.i8 13\n");
-		            }
-		            else if (l == 116) {
-		                sb.Append("\tldc.i8 9\n");
-		            }
-		            else if (l == 92) {
-		                sb.Append("\tldc.i8 92\n");
-		            }
-		            else if (l == 39) {
-		                sb.Append("\tldc.i8 39\n");
-		            }
-		            else if (l == 34) {
-		                sb.Append("\tldc.i8 34\n");
-		            }
-		            else if (l == 117) {
-						sb.Append("\tldc.i8 0x");
-		                flagx = true;
-						flag = false;
-						continue;
-		            }
-					flag = false;
-				}
-				else {
-					sb.Append("\tldc.i8 " + l.ToString() + "\n");
-				}
-				sb.Append("\tcall int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)\n");
-				sb.Append("\tpop\n");
+				WriteLine("dup");
+				WriteLine("ldc.i8 ", i.ToString());
+				WriteLine("ldc.i8 ", l.ToString());
+				WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Set'(int64, int64, int64)");
+				WriteLine("pop");
 				i += 1;
 			}
-
-			WriteLine("ldc.i8 ", count.ToString());
-			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'New'(int64)");
-			WriteLine(sb.ToString());
 		}
 
 		public void Visit(Assignment node) {
