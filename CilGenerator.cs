@@ -594,36 +594,36 @@ namespace Int64 {
 		}
 
 		public void Visit(CharLiteral node) {
-			string char_literal = node.AnchorToken.Lexeme.Replace("'","");
-
-            if (char_literal == "\\n") {
-                WriteLine("ldc.i8 10");
-            }
-            else if (char_literal == "\\r") {
-                WriteLine("ldc.i8 13");
-            }
-            else if (char_literal == "\\t") {
-                WriteLine("ldc.i8 9");
-            }
-            else if (char_literal == "\\\\") {
-                WriteLine("ldc.i8 92");
-            }
-            else if (char_literal == "\\'") {
-                WriteLine("ldc.i8 39");
-            }
-            else if (char_literal == "\\\"") {
-                WriteLine("ldc.i8 34");
-            }
-            else if (char_literal.StartsWith("\\u")) {
-                WriteLine("ldc.i8 0x", char_literal.Replace("\\u", ""));
-            }
-            else {
-                WriteLine("ldc.i8 ", char.ConvertToUtf32(char_literal, 0));
-            }
-			// String lexeme = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
-			// Console.WriteLine(lexeme);
-			// long value = char.ConvertToUtf32(lexeme, lexeme.Length - 1);
-			// WriteLine("ldc.i8 ", value.ToString());
+			// string char_literal = node.AnchorToken.Lexeme.Replace("'","");
+            //
+            // if (char_literal == "\\n") {
+            //     WriteLine("ldc.i8 10");
+            // }
+            // else if (char_literal == "\\r") {
+            //     WriteLine("ldc.i8 13");
+            // }
+            // else if (char_literal == "\\t") {
+            //     WriteLine("ldc.i8 9");
+            // }
+            // else if (char_literal == "\\\\") {
+            //     WriteLine("ldc.i8 92");
+            // }
+            // else if (char_literal == "\\'") {
+            //     WriteLine("ldc.i8 39");
+            // }
+            // else if (char_literal == "\\\"") {
+            //     WriteLine("ldc.i8 34");
+            // }
+            // else if (char_literal.StartsWith("\\u")) {
+            //     WriteLine("ldc.i8 0x" + char_literal.Replace("\\u", ""));
+            // }
+            // else {
+            //     WriteLine("ldc.i8 " + char.ConvertToUtf32(char_literal, 0));
+            // }
+			String lexeme = node.AnchorToken.Lexeme.Substring(1, node.AnchorToken.Lexeme.Length - 2);
+			//Console.WriteLine(lexeme);
+			long value = char.ConvertToUtf32(lexeme, lexeme.Length - 1);
+			WriteLine("ldc.i8 ", value.ToString());
 		}
 
 		public void Visit(StringLiteral node) {
