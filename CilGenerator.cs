@@ -345,6 +345,8 @@ namespace Int64 {
 			// Visit condition.
 			WriteLine("br ", conditionLabel);
 
+			WriteLabel(bodyLabel);
+
 			Visit((dynamic) node[1]);  // Get handle
 			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
 
@@ -360,8 +362,6 @@ namespace Int64 {
 			} else {
 				throw new InvalidOperationException("Found a variable that is not in parameters, or locals, or globals");
 			}
-
-			WriteLabel(bodyLabel);
 			Visit((dynamic) node[2]);
 
 			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
@@ -371,9 +371,9 @@ namespace Int64 {
 
 			// Visit condition. 
 			WriteLabel(conditionLabel);
+			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
 			Visit((dynamic) node[1]);
 			WriteLine("call int64 class ['int64lib']'Int64'.'Utils'::'Size'(int64)"); 
-			WriteLine("ldloc '", indexLabel, "'"); // Get index. 
 			WriteLine("clt");
 
 			// Jump back
