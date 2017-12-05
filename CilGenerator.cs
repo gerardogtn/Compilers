@@ -451,8 +451,7 @@ namespace Int64 {
 		public void Visit(NotEqual node) {
 			VisitChildren(node);
 			WriteLine("ceq");
-			WriteLine("conv.i8");
-			WriteLine("ldc.i8 0");
+			WriteLine("ldc.i4 0");
 			WriteLine("ceq");
 			WriteLine("conv.i8");
 		}
@@ -466,7 +465,7 @@ namespace Int64 {
 		public void Visit(GreaterEqualThan node) {
 			VisitChildren(node);
 			WriteLine("clt");
-			WriteLine("ldc.i8 0");
+			WriteLine("ldc.i4 0");
 			WriteLine("ceq");
 			WriteLine("conv.i8");
 		}
@@ -480,7 +479,7 @@ namespace Int64 {
 		public void Visit(LessEqualThan node) {
 			VisitChildren(node);
 			WriteLine("cgt");
-			WriteLine("ldc.i8 0");
+			WriteLine("ldc.i4 0");
 			WriteLine("ceq");
 			WriteLine("conv.i8");
 		}
