@@ -1,4 +1,23 @@
+var fails;
+var asserts;
+
+assert(value1, value2) {
+    asserts = asserts + 1;
+    if (value1 != value2) {
+        fails = fails + 1;
+    }
+}
+
 main() {
-	var a; 
-	a = 0b1001;
+    fails = 0;
+    asserts = 0;
+
+    assert(16, 1 << 4);
+    assert(-70368744177664, -16 << 42);
+
+    printi(fails);
+    println();
+    printi(asserts);
+    println();
+
 }
